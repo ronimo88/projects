@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Main-Class: com.example.software_i_application.Software_I_Application
+

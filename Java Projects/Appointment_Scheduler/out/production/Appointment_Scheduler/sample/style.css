@@ -1,0 +1,70 @@
+* {
+    default-primary-color: #BEC8E1;
+    default-secondary-color: #CCCCCC;
+    accent-color: #607D8B;
+    primary-text-color: #303030;
+    secondary-text-color: #f2f2f2;
+    secondary-text-color: #f2f2f2;
+}
+
+.root {
+    -fx-background-color: default-primary-color;
+}
+
+.tab-pane {
+    -fx-font: 14px "Arial";
+    -fx-text-fill: primary-text-color;
+    -fx-text-alignment: left;
+    -fx-font-weight: bold;
+
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: default-primary-color;
+}
+
+
+.button {
+    -fx-font: 14px "Arial";
+    -fx-text-fill: secondary-text-color;
+    -fx-padding: 5;
+    -fx-background-color: accent-color;
+    -fx-background-radius: 4;
+    -fx-font-weight: bold;
+}
+
+
+.text-field{
+    -fx-font: 14px "Arial";
+    -fx-text-fill: primary-text-color;
+    -fx-padding: 5;
+    -fx-background-color: #eeeeee;
+    -fx-background-radius: 4;
+
+
+}
+
+.label {
+    -fx-font: 14px "Arial";
+    -fx-text-fill: primary-text-color;
+    -fx-text-alignment: left;
+    -fx-font-weight: bold
+}
+
+.table-view .table-cell {
+    -fx-font-weight: normal;
+    -fx-font: 14px "Arial";
+}
+
+.choice-box {
+    -fx-font: 14px "Arial";
+    -fx-text-fill: #616161;
+    -fx-text-alignment: left;
+    -fx-background-color: #eeeeee;
+    -fx-background-radius: 4;
+    -fx-font-weight: normal;
+}
+
+.choice-box .label {
+    -fx-font-weight: normal;
+}
