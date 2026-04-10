@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+
+<title>Snake</title>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+<link rel="stylesheet" href="style.css">
+<script src="myscripts.js"></script>
+
+</head>
+
+<script>
+
+let canvas, ctx, dir, size, head, tails, length, speed, runInterval, 
+dirPressed, food, score, testVar, gameOver, fromDir, invincible, debug, 
+gameStart, canRestart, screenWrap;
+
+document.onkeydown = function(e) {
+
+	if (e.key == 'ArrowLeft') {
+       	dirPressed = 2
+		
+		if (!gameStart) {
+			gameStart = true;
+			runInterval = setInterval(moveSnake, 1000/speed);	
+		}	
+		
+		if (canRestart) loadGame();
+    }
+
+	if (e.key == 'ArrowUp') {
+        dirPressed = 1;
+		
+		if (!gameStart) {
+			gameStart = true;
+			runInterval = setInterval(moveSnake, 1000/speed);	
+		}
+		
+		if (canRestart) loadGame();
+			
+
+    }
+    	
+	if (e.key == 'ArrowRight') {
+		dirPressed = 0;
+		
+		if (!gameStart) {
+			gameStart = true;
+			runInterval = setInterval(moveSnake, 1000/speed);	
+		}
+		
+		if (canRestart) loadGame();
+		
+
+	}
+
+	if (e.key == 'ArrowDown') {
+        dirPressed = 3;
+		
+		if (!gameStart) {
+			gameStart = true;
+			runInterval = setInterval(moveSnake, 1000/speed);	
+		}
+		
+		if (canRestart) loadGame();
+			
+
+    }
+
+	if (e.key == 'R' || e.key == 'r') {
+		loadGame();
+	}
+
+	//alert(e.key);	
+}
+
+
+function loadGame() {
+	clearInterval(runInterval);
+	canvas = document.getElementById("canvas");
+	ctx = canvas.getContext("2d");
+	canvas.width = 500;
+	canvas.height = 500;
+	size = 20;
+	dir = 0;
+	fromDir = dir;
+	length = 3;
+	speed = 10;
+	tails = [];
+	dirPressed = 0;
+	testVar = false;
+	score = 0;
+	document.getElementById("score").innerHTML = "SCORE: "+ score;
+	gameOver = false;
+	x = size*4;
+	y = Math.floor(canvas.height/(2*size))*size;
+	invincible = false;
+	debug = false;
+	gameStart = false;
+	canRestart = false;
+	screenWrap = true;
+	
+	//testing
+	//length=10000;
+	//x=0
+	//y=0;
+	//speed=20;
+	//canvas.width=100;
+	//canvas.height=100;
+	//invincible = true;
+	
+		
+	head = {
+		x:x,
+		y:y	
+	}
+
+	for (var i=1; i<length; i++) {
+		
+		tails.push(new tail(x-i*size,y,length-i,0,0));
+	}
+
+	//for (var i=0
+	food = {
+		x: Math.floor(Math.random()*(canvas.width/size-1))*size,
+		y: Math.floor(Math.random()*(canvas.height/size-1))*size
+	}
+
+	checkFood();
+
+	//runInterval = setInterval(moveSnake, 1000/speed);
+
+	drawObjects();
+
+}
+
+
+function tail(x,y,lives,fromDir,toDir) {
+	this.x = x;
+	this.y = y;
+	this.lives = lives;
+	this.fromDir = fromDir;
+	this.toDir = toDir;
+}
+
+function checkFood() {
+	var collideSnake = true;
+	var loopVal = 2;
+
+	//while (loopVal > 0) {
+
+		while (collideSnake && loopVal > 0) {
+
+			collideSnake = false;
+
+			tails.forEach(function(tail) {
+				if(tail.x == food.x && tail.y == food.y
+				|| head.x == food.x && head.y == food.y) {
+					collideSnake = true;
+
+					food.x += size;
+					if (food.x >= canvas.width) {
+						food.x = 0;
+						food.y += size;
+					} 
+				
+					if (food.y >= canvas.height) {
+						food.x = 0;
+						food.y = 0;
+						loopVal--;		
+					}
+						
+					if (loopVal==0) {
+						setTimeout(function() {
+							alert("You Win!");
+							clearInterval(runInterval);
+						},100);
+						
+						collideSnake = false;
+						loopVal = -1;
+						food = null;
+						
+					}
+				}	
+			});
+
+			if (!collideSnake) loopVal = -1;
+		}	
+	//}
+}
+
+
+function moveSnake() {
+
+	
+
+	if (dirPressed == 2 && dir != 0) {
+		dir = 2;
+	}
+
+	if (dirPressed == 1 && dir != 3) {
+		dir = 1;
+	}
+    	
+	if (dirPressed == 0 && dir != 2) {
+		dir = 0;
+	}
+
+	if (dirPressed == 3 && dir != 1) {
+		dir = 3;
+	}
+	
+	
+	var toDir = dir;
+	var tempX = head.x;
+	var tempY = head.y;
+
+	if (dir == 0) tempX += size;
+	if (dir == 1) tempY -= size;
+	if (dir == 2) tempX -= size;
+	if (dir == 3) tempY += size;
+
+	var collision = false;
+	
+	if (screenWrap) {
+		if (tempX > canvas.width-size) tempX = 0;
+		if (tempX < 0) tempX = canvas.width-size;
+		if (tempY > canvas.height-size) tempY = 0;
+		if (tempY < 0) tempY = canvas.height-size;
+	} else {
+
+		if (tempX > canvas.width-size
+		|| tempX < 0
+		|| tempY > canvas.height-size
+		|| tempY < 0)
+			collision = true;
+	}
+
+	tails.forEach(function(tail) {
+		if (tempX == tail.x && tempY == tail.y) {
+			collision = true;
+		}	
+	});
+
+	
+
+	if (collision) {
+
+		killSnake();
+
+	} else {
+		
+		tails.push(new tail(head.x,head.y,length,fromDir,toDir));
+	
+		head.x = tempX;
+		head.y = tempY;
+
+		if (head.x == food.x && head.y == food.y) {
+
+
+			score++;
+			document.getElementById("score").innerHTML = "SCORE: "+ score;
+
+			food.x = Math.floor(Math.random()*(canvas.height/size-1))*size;
+			food.y = Math.floor(Math.random()*(canvas.height/size-1))*size;
+			
+			checkFood();
+	
+			drawObjects();
+	
+			length++;
+		
+			tails.forEach(function(tail) {
+				tail.lives++;
+			}); 
+		}
+
+		tails.forEach(function(tail) {
+			if (tail.lives > 0) {
+				tail.lives--;;
+			}
+		});
+	
+		tails.forEach(function(tail) {
+
+			if (tail.lives == 0) {
+				tails.splice(tails.indexOf(tail),1);
+			}
+		
+		});
+		
+		fromDir = dir;
+	
+	}
+	
+	
+	
+
+	drawObjects();
+	
+	
+}
+
+function killSnake() {
+	if (!invincible) {
+		clearInterval(runInterval);
+		gameOver = true;
+		
+		setTimeout(function() {
+			canRestart = true
+		},1000);
+	}
+}
+
+
+function drawObjects() {
+
+	var color = "#00FF00";
+	if (gameOver) color = "red" 
+
+	ctx.clearRect(0,0,canvas.width,canvas.height);
+	
+	
+	
+	ctx.fillStyle = color;
+	
+	ctx.fillRect(head.x+4,head.y+4,size-8,size-8);
+	
+	if (fromDir == 0) ctx.fillRect(head.x,head.y+4,4,size-8);
+	if (fromDir == 1) ctx.fillRect(head.x+4,head.y+size-4,size-8,4);
+	if (fromDir == 2) ctx.fillRect(head.x+size-4,head.y+4,4,size-8);
+	if (fromDir == 3) ctx.fillRect(head.x+4,head.y,size-8,4);
+	
+	if (dir == 0) ctx.fillRect(head.x+size-4,head.y+4,4,size-8);
+	if (dir == 1) ctx.fillRect(head.x+4,head.y,size-8,4);
+	if (dir == 2) ctx.fillRect(head.x,head.y+4,4,size-8);
+	if (dir == 3) ctx.fillRect(head.x+4,head.y+size-4,size-8,4);
+	
+
+	ctx.strokeStyle = "black";
+	//ctx.strokeRect(head.x,head.y,size,size);
+	
+
+	/*
+	if (dir == 0) ctx.fillRect(head.x+size,head.y+size/2-2,8,4);
+	if (dir == 1) ctx.fillRect(head.x+size/2-2,head.y-8/2-2,4,8);
+	if (dir == 2) ctx.fillRect(head.x-8,head.y+size/2-2,8,4);
+	if (dir == 3) ctx.fillRect(head.x+size/2-2,head.y+size,4,8);
+	*/
+	
+	tails.forEach(function(tail) {
+	
+		ctx.fillStyle = color;
+		ctx.fillRect(tail.x+4,tail.y+4,size-8,size-8);
+		
+		if (tail.fromDir == 0) ctx.fillRect(tail.x,tail.y+4,4,size-8);
+		if (tail.fromDir == 1) ctx.fillRect(tail.x+4,tail.y+size-4,size-8,4);
+		if (tail.fromDir == 2) ctx.fillRect(tail.x+size-4,tail.y+4,4,size-8);
+		if (tail.fromDir == 3) ctx.fillRect(tail.x+4,tail.y,size-8,4);
+		
+		if (tail.toDir == 0) ctx.fillRect(tail.x+size-4,tail.y+4,4,size-8);
+		if (tail.toDir == 1) ctx.fillRect(tail.x+4,tail.y,size-8,4);
+		if (tail.toDir == 2) ctx.fillRect(tail.x,tail.y+4,4,size-8);
+		if (tail.toDir == 3)  ctx.fillRect(tail.x+4,tail.y+size-4,size-8,4);
+		
+		
+
+
+		ctx.strokeStyle = "black";
+		//ctx.strokeRect(tail.x,tail.y,size,size);
+
+		ctx.fillStyle = "black"
+		ctx.font = "20px Arial";
+		//ctx.fillText(tail.lives,tail.x,tail.y);
+		
+	});
+
+	ctx.fillStyle = "red";
+	if (food != null) ctx.fillRect(food.x+5,food.y+5,size-10,size-10);
+
+	//if (testVar) alert(food.x)
+}
+
+</script>
+
+<style>
+
+#canvasDiv {
+	margin:50px auto;	
+	width:fit-content;
+	height:fit-content;
+}
+
+#canvas {
+	border-style:solid;
+	border-width:1px;
+	background-color:var(--block-color);	
+	border-color:var(--game-border-color);
+}
+
+#score {
+	margin:5px;
+	text-align:center;
+	font-family: Arial;
+	font-size: 24px;
+	color:var(--text-color);
+}
+
+</style>
+
+
+
+<body onload=" checkCookie('theme'), loadGame(); menuResize(); windowResize() " onresize="menuResize(); windowResize()" onclick="pageClicked()" >
+
+<div id="topBar">
+	<script> loadMenuBar()</script>
+</div>
+
+<div id="mainInnerGOL">
+	
+		<div class="pageHeader"> Snake </div>
+	
+		<div class="intro" id="golIntro"> This is a remake of the classic Snake game. Use the arrow keys to move the snake. Try to eat as much food as you can without crashing into yourself or the wall.  </div>
+
+		<div id="canvasDiv"> 
+			<canvas id="canvas"></canvas>
+			<div id="score"></div>
+		</div>
+		
+	</div>
+</div>
+
+</body>
+
+</html>

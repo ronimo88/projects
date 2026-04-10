@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html>
+<title>Wordle</title>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+<link rel="stylesheet" href="style.css">
+<script src="myscripts.js"></script>
+<script src="wordlist.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.js"</script>
+<script type="text/javascript" src="js/bootstrap-filestyle.min.js"> </script>
+
+
+</head>
+
+<style>
+
+.canvasDiv {
+
+	width:fit-content;
+	height:fit-content;
+	margin:auto;
+	
+}
+
+#cellCanvas {
+	//border-style:solid;
+	//border-width:1px;
+	//border-color:black;
+	//background-color:gray;
+	margin-bottom:50px;	
+	outline: none;
+}
+
+#keyboardCanvas {
+	//background-color:gray;
+	//cursor:pointer;
+
+}
+
+#newGameButton, #statsButton, #giveUpButton, #resetStatsButton, #muteButton {
+	margin:10px 5px;
+	margin-bottom:20px;
+	font-size: 18px;
+	padding:5px;
+	//background-color:var(--link-color);
+	background-color:gray;
+	border-color: black;
+	border-radius:10px;
+	cursor:pointer;
+	color:white;
+}
+
+
+#stats {
+	border-style:solid;
+	border-width:2px;
+	border-color:gray;
+	background-color:#EEE;
+	position:absolute;
+	margin:auto;
+	left:0;
+	right:0;
+	top:200px;
+	width:250px;
+	height:fit-content;
+	padding:20px;
+	font-size:20px;
+	border-radius:10px;
+	padding-bottom:70px;
+}
+
+#closeButton {
+	font-size:16px;
+	position:absolute;
+	right:2px;
+	top:2px;
+	width:fit-content;
+	height:fit-content;
+	//border-width:1px;
+	//border-style:solid;
+	//border-color:black;
+	border:0;
+	color:black;	
+	display:block;
+	cursor:pointer;
+	background-color:transparent;
+}
+
+#resetStatsButton {
+	position:absolute;
+	left:0;
+	right:0;
+	bottom:10px;
+	margin:auto;
+	width:fit-content;
+}
+
+#fireworksCanvas {
+	position:absolute;
+	left:0;
+	top:0;
+	pointer-events:none;
+	z-index:-1;
+}
+
+
+</style>
+
+
+<script>
+
+let cellCanvas, keyboardCanvas, cellCtx, keyboardCtx, boardWidth, boardHeight, cells, cellSize, keys, keyWidth, keyHeight, audioList, effects, timeouts, intervals, globalVolume, row, column, cellMargin, keyMargin, word, gameEnd, gameWin, wordList, wordFile, mouseX, mouseY, stats, statsText, streak, gameActive, wins, gamesPlayed, enterButton, deleteButton, saveGame, statsTimeout, fireworksTimeout, fireworksAudio, winAudio;
+
+function load() {
+	
+	cellCanvas = document.getElementById("cellCanvas");
+	cellCtx = cellCanvas.getContext("2d");
+	boardWidth = 5;
+	boardHeight = 6;
+	cellSize = 60;
+	cellMargin = 10;
+	cellCanvas.width = (cellSize+cellMargin)*boardWidth-cellMargin+10;
+	cellCanvas.height = (cellSize+cellMargin)*boardHeight-cellMargin+10;
+
+	keyboardCanvas = document.getElementById("keyboardCanvas");
+	keyboardCtx = keyboardCanvas.getContext("2d");
+	keyWidth = 30;
+	keyHeight= 40;
+	keyMargin = 5;
+	keyboardCanvas.width = (keyWidth+keyMargin)*10-keyMargin;
+	keyboardCanvas.height = (keyHeight+keyMargin)*3-keyMargin;
+	
+	fireworksCanvas = document.getElementById('fireworksCanvas');
+	fireworksCanvas.width = window.innerWidth;
+	fireworksCanvas.height = window.innerHeight;
+	fireworksCtx = fireworksCanvas.getContext('2d');
+
+	getWordList();
+	globalVolume = true;
+
+	stats = document.getElementById("stats");
+	statsText = document.getElementById("statsText");
+	
+	streak = 0;
+	wins = 0;
+	gamesPlayed = 0;
+	saveGame = false;
+	
+	audioList = [];
+	globalVolume = true;
+	fireworksAudio = new audio("audio/fireworks.mp3",1,true);
+	winAudio = new audio('audio/win.mp3',1,true);
+	
+	if (globalVolume) muteButton.innerHTML = "\u{1F50A}";
+	else muteButton.innerHTML = "\u{1F507}";
+	
+	startGame();
+}
+
+function startGame() {
+
+	clearTimeout(statsTimeout);
+	clearTimeout(fireworksTimeout);
+	
+	cellCanvas.focus();
+	effects = [];
+	timeouts = [];
+	intervals = [];
+	row = 0;
+	column = 0;
+	gameEnd = false;
+	gameWin = false;
+	gameActive = true;
+	
+	audioList.forEach(function(audio) {
+		audio.stop();
+	});
+	
+	cells = [];
+	keys = [];
+	
+	for(var i=0; i<boardHeight; i++) {
+		for(var j=0; j<boardWidth; j++) {
+			new cell(i,j);
+		}
+	}
+	
+	var letters = "QWERTYUIOP";
+	for (var i=0; i<10; i++) {
+		var key = new keyCell(i*(keyWidth+keyMargin),0,letters.charAt(i));
+	}
+
+	var letters = "ASDFGHJKL";
+	for (var i=0; i<9; i++) {
+		var key = new keyCell(keyWidth/2+i*(keyWidth+keyMargin)+keyMargin/2,keyHeight+keyMargin,letters.charAt(i));
+	}
+
+	var letters = "ZXCVBNM";
+	for (var i=0; i<7; i++) {
+		var key = new keyCell(keyWidth*3/2+keyMargin+i*(keyWidth+keyMargin)+keyMargin/2,keyHeight*2+keyMargin*2,letters.charAt(i));
+	}
+	
+	enterButton = {};
+	enterButton.x = cellCanvas.width-keyWidth*3/2-keyMargin*3/2;
+	enterButton.y = keyHeight*2+keyMargin*2;
+	enterButton.width = keyWidth*3/2+keyMargin/2;
+	enterButton.height = keyHeight;
+	
+	deleteButton = {};
+	deleteButton.x = 0;
+	deleteButton.y = keyHeight*2+keyMargin*2;
+	deleteButton.width = keyWidth*3/2+keyMargin/2;
+	deleteButton.height = keyHeight;
+	
+	drawInterval = setInterval(function() {
+		drawObjects();
+		
+	}, 1000/60);
+
+	showStats(false);
+	
+}
+
+
+function newGame() {
+	word = wordList[Math.random()*wordList.length>>0];
+	row = 0;
+	saveGame = true;
+	console.log(word);
+	updateCookie();
+	
+	
+}
+function cell(row, column) {
+	
+	this.row = row;
+	this.column = column;
+	this.x = column*(cellSize+cellMargin)+5;
+	this.y = row*(cellSize+cellMargin)+5;
+	this.letter = '';
+	this.color = 0;
+	cells.push(this);	
+}
+
+function keyCell(x,y,letter) {
+	this.x = x;
+	this.y = y;
+	this.letter = letter;
+	this.color = 0;
+	keys.push(this);
+}
+
+
+function drawObjects() {
+
+	cellCtx.clearRect(0,0,cellCanvas.width,cellCanvas.height);
+	fireworksCtx.clearRect(0,0,fireworksCanvas.width,fireworksCanvas.height);
+
+	cells.forEach(function(cell) {
+
+		var fontSize = cellSize*0.5;
+		cellCtx.font = "bold " + fontSize + "px Arial";
+		cellCtx.textBaseline = "middle";
+		cellCtx.textAlign = "center"
+		cellCtx.lineWidth = 1;
+		
+		if (cell.color == 1) cellCtx.fillStyle = "#3A3A3C";
+		if (cell.color == 2) cellCtx.fillStyle = "#B59F3B";
+		if (cell.color == 3) cellCtx.fillStyle = "#538D4E";
+		if (cell.color > 0) cellCtx.fillRect(cell.x, cell.y, cellSize, cellSize);
+		
+		let val = document.getElementById("themeSlider").checked;
+		
+		if (val || cell.color > 0) cellCtx.fillStyle = "white"; else cellCtx.fillStyle = "black";
+		cellCtx.fillText(cell.letter,cell.x+cellSize/2,cell.y+cellSize/2);
+		
+		
+		
+		if (val) cellCtx.strokeStyle = "lightgray"; else cellCtx.strokeStyle = "black";
+		cellCtx.strokeRect(cell.x, cell.y, cellSize, cellSize);
+		
+	});
+
+	effects.forEach(function(effect) {
+		effect.draw();
+	});
+	
+	
+	keyboardCtx.clearRect(0,0,keyboardCanvas.width, keyboardCanvas.height);
+	
+	keys.forEach(function(keyCell) {
+
+		var fontSize = keyWidth*0.75;
+		keyboardCtx.font = "bold " + fontSize + "px Arial";
+		keyboardCtx.textBaseline = "middle";
+		keyboardCtx.textAlign = "center"
+		keyboardCtx.lineWidth = 1;
+		
+		keyboardCtx.fillStyle = "lightgray";
+		if (keyCell.color == 1) keyboardCtx.fillStyle = "#3A3A3C";
+		if (keyCell.color == 2) keyboardCtx.fillStyle = "#B59F3B";
+		if (keyCell.color == 3) keyboardCtx.fillStyle = "#538D4E";
+		
+		keyboardCtx.beginPath();
+		keyboardCtx.roundRect(keyCell.x, keyCell.y, keyWidth, keyHeight, 5);
+		keyboardCtx.fill();
+		keyboardCtx.closePath();
+		
+		keyboardCtx.fillStyle = "black";
+		if (keyCell.color > 0) keyboardCtx.fillStyle = "white";
+		keyboardCtx.fillText(keyCell.letter,keyCell.x+keyWidth/2,keyCell.y+keyHeight/2);
+		
+		//keyboardCtx.strokeStyle = "lightgray";
+		//keyboardCtx.strokeRect(keyCell.x, keyCell.y, keyWidth, keyHeight);
+		
+	});
+	
+	var fontSize = keyWidth*0.5;
+	keyboardCtx.font = "bold " + fontSize + "px Arial";
+	
+	keyboardCtx.fillStyle = "lightgray";
+	keyboardCtx.beginPath();
+	keyboardCtx.roundRect(enterButton.x, enterButton.y, enterButton.width, enterButton.height, 5);
+	keyboardCtx.fill();
+	keyboardCtx.closePath();
+	keyboardCtx.fillStyle = "black";
+	keyboardCtx.fillText('ENT',enterButton.x+keyWidth*3/4,enterButton.y+keyHeight/2)
+	
+	keyboardCtx.fillStyle = "lightgray";
+	keyboardCtx.beginPath();
+	keyboardCtx.roundRect(deleteButton.x, deleteButton.y, deleteButton.width, deleteButton.height, 5);
+	keyboardCtx.fill();
+	keyboardCtx.closePath();
+	keyboardCtx.fillStyle = "black";
+	keyboardCtx.fillText('DEL',deleteButton.x+keyWidth*3/4,deleteButton.y+keyHeight/2)
+	
+	
+}
+
+function showStats(show) {
+	
+	statsText.innerHTML = "";
+	
+	if (stats.style.display != "none") show = false;
+	
+	if (show) {
+		gameActive = false;
+		
+		
+		stats.style.display = "revert";
+		//document.getElementById('closeButton').style.display = 'revert';
+		
+		if (gameWin) statsText.innerHTML += "You Got It!<br><br>"
+		else if (gameEnd) statsText.innerHTML += "You Lose :(<br>The word was " + word.toUpperCase() + '<br><br>';
+	} else {
+		stats.style.display = "none";
+	}
+	
+	statsText.innerHTML += "<u>Stats</u><br>";
+	
+	statsText.innerHTML += 'Wins: '+ wins + '/' + gamesPlayed + "<br>Streak: "+streak;
+}
+
+
+function keyTyped(key) {
+	
+	if (gameActive) {
+		cells.forEach(function(cell) {
+			
+			if (cell.row == row && cell.column == column) cell.letter = key;
+		});
+
+		if (column < 5) column++;
+	}
+}
+
+function keyClicked() {
+	if (gameActive) {
+		keys.forEach(function(key) {
+			if (mouseX > key.x && mouseX < key.x+keyWidth && mouseY > key.y && mouseY < key.y+keyHeight) {
+				keyTyped(key.letter);
+			}
+
+		});
+		
+		if (mouseX > enterButton.x && mouseX < enterButton.x+enterButton.width && mouseY > enterButton.y && mouseY < enterButton.y+enterButton.height)
+			enterPressed();
+		
+		
+		if (mouseX > deleteButton.x && mouseX < deleteButton.x+deleteButton.width && mouseY > deleteButton.y && mouseY < deleteButton.y+deleteButton.height)
+			deletePressed();
+	}
+}
+
+function closestats() {
+	showStats(false)
+	if (!gameEnd) gameActive = true;
+	
+}
+
+function enterPressed() {
+
+	
+
+	if (column == 5) {
+		var cell1, cell2, cell3, cell4, cell5;
+				
+		cells.forEach(function(cell) {
+			if (cell.row == row) {
+		
+				if (cell.column == 0) cell1 = cell;
+				if (cell.column == 1) cell2 = cell;
+				if (cell.column == 2) cell3 = cell;
+				if (cell.column == 3) cell4 = cell;
+				if (cell.column == 4) cell5 = cell;
+			}	
+		});
+		
+		var typedWord = (cell1.letter + cell2.letter + cell3.letter + cell4.letter + cell5.letter).toLowerCase();
+		
+		//alert(wordList);
+		if (wordList.includes(typedWord)) {
+
+			cell1.color = 1;
+			cell2.color = 1;
+			cell3.color = 1;
+			cell4.color = 1;
+			cell5.color = 1;
+			
+			tempWord = word;
+			
+			if (tempWord.indexOf(cell1.letter.toLowerCase()) > -1) 
+			{
+				cell1.color = 2;
+				tempWord = tempWord.replace(cell1.letter.toLowerCase(), '');
+			}
+			
+			if (tempWord.indexOf(cell2.letter.toLowerCase()) > -1) 
+			{
+				cell2.color = 2;
+				tempWord = tempWord.replace(cell2.letter.toLowerCase(), '');
+			}
+			
+			if (tempWord.indexOf(cell3.letter.toLowerCase()) > -1) 
+			{
+				cell3.color = 2;
+				tempWord = tempWord.replace(cell3.letter.toLowerCase(), '');
+			}
+			
+			if (tempWord.indexOf(cell4.letter.toLowerCase()) > -1) 
+			{
+				cell4.color = 2;
+				tempWord = tempWord.replace(cell4.letter.toLowerCase(), '');
+			}
+			
+			if (tempWord.indexOf(cell5.letter.toLowerCase()) > -1) 
+			{
+				cell5.color = 2;
+				tempWord = tempWord.replace(cell5.letter.toLowerCase(), '');
+			}
+			
+
+			if (word.charAt(0) == cell1.letter.toLowerCase()) cell1.color = 3;
+			if (word.charAt(1) == cell2.letter.toLowerCase()) cell2.color = 3;
+			if (word.charAt(2) == cell3.letter.toLowerCase()) cell3.color = 3;
+			if (word.charAt(3) == cell4.letter.toLowerCase()) cell4.color = 3;
+			if (word.charAt(4) == cell5.letter.toLowerCase()) cell5.color = 3;
+		
+			
+			keys.forEach(function(key) {
+				
+				if (key.letter == cell1.letter) if (key.color < cell1.color) key.color = cell1.color;
+				if (key.letter == cell2.letter) if (key.color < cell2.color) key.color = cell2.color;
+				if (key.letter == cell3.letter) if (key.color < cell3.color) key.color = cell3.color;
+				if (key.letter == cell4.letter) if (key.color < cell4.color) key.color = cell4.color;
+				if (key.letter == cell5.letter) if (key.color < cell5.color) key.color = cell5.color;
+				
+			});
+			
+			
+			if (typedWord == word) {
+				
+				
+				gameEnd = true;
+				gameWin = true;
+				streak++;
+				wins++;
+				gamesPlayed++;
+				saveGame = false;
+				updateCookie();
+				giveUpButton.innerHTML = "New Game";
+				
+				statsTimeout = setTimeout(function(){
+					showStats(true)
+					createFireworks();
+					fireworksAudio.play();
+					winAudio.play();
+				},500);
+				
+			} else if (row < 5) {
+				
+				column = 0;
+				row++;
+				saveGame = true;
+				updateCookie();
+				
+				
+			} else { 
+		
+				gameEnd = true;
+				streak = 0;
+				gamesPlayed++;
+				saveGame = false;
+				updateCookie();
+				giveUpButton.innerHTML = "New Game";
+				
+				statsTimeout = setTimeout(function(){showStats(true)},500);
+				
+			
+			}
+		}
+	}
+}
+
+function deletePressed() {
+	if (column > 0) {
+		column--; 
+		cells.forEach(function(cell) {
+		
+			if (cell.row == row && cell.column == column) cell.letter = "";
+		});
+	}
+}
+
+function giveUp() {
+
+	
+
+	if(!gameEnd && gameActive) {
+		gamesPlayed++;
+		gameEnd = true;
+		streak = 0;
+		updateCookie();
+		showStats(true);
+		giveUpButton.innerHTML = "New Game";
+		
+		cells.forEach(function(cell) {
+			if (cell.color == 0) cell.color = 1;
+		});
+	} else {
+		
+		startGame();
+		newGame();
+		giveUpButton.innerHTML = "Give Up";
+	}
+	
+	
+	
+}
+
+
+function checkWordleCookie() {
+	
+	var json_str = getCookie('wordleCookie');
+
+	if (json_str != "") {
+		arr = JSON.parse(json_str);
+		wins = arr[0];
+		gamesPlayed = arr[1];
+		streak = arr[2];
+		word = arr[3];
+		row = arr[4]
+		saveGame = arr[5];
+		
+		if (saveGame) {
+			var num = 6;
+			cells.forEach(function(cell) {
+				cell.letter = arr[num];
+				num++;
+				cell.color = arr[num];
+				num++;
+			});
+			
+			keys.forEach(function(key) {
+				key.color = arr[num];
+				num++;
+			});
+			
+			console.log(word);
+		} else {
+			newGame()
+		}
+		
+	
+	} else {
+		newGame();
+	}
+	
+	
+}
+
+function updateCookie() {
+	var arr = [];
+	arr.push(wins);
+	arr.push(gamesPlayed);
+	arr.push(streak);
+	arr.push(word);
+	arr.push(row);
+	arr.push(saveGame);
+	
+	cells.forEach(function(cell) {
+		arr.push(cell.letter);
+		arr.push(cell.color);
+	});
+	
+	keys.forEach(function(key) {
+		arr.push(key.color);
+	});
+	
+	
+	var json_str = JSON.stringify(arr);
+	setCookie('wordleCookie',json_str);	
+}
+
+function resetCookies() {
+
+	const response = confirm("Do you want to delete all saved data?");
+	
+	if (response) {
+		startGame();
+		load();
+		
+		updateCookie();
+		alert('Data Deleted');
+		newGame();
+	}
+
+}
+
+function audio(src, vol, loop) {
+	
+	var audioObj = new Audio(src);
+	
+	this.play = function() {
+		audioObj.play();
+	}
+	
+	this.stop = function() {
+		audioObj.pause();
+		audioObj.currentTime = 0;
+	}
+	
+	this.setVolume = function() {
+		
+		audioObj.volume = vol*globalVolume;
+	}
+	
+	this.setVolume(vol);
+	audioObj.loop = loop;
+	
+	audioList.push(this);
+}
+
+
+function fireworks(x,y) {
+					
+	this.x = x;
+	this.y = y;
+	this.colors = ['red','orange','yellow','lime','blue','violet'];
+	this.color = this.colors[Math.random()*this.colors.length>>0];
+	
+	var obj = this;
+	for (var i=0; i<=Math.PI*2; i+=Math.PI/128) {
+		var speed = Math.random()*2+0.1
+		new particle(obj.x,obj.y,i,speed,obj.color);	
+	}
+
+}
+
+function particle(x,y,dir,speed,color) {
+	var ctx = fireworksCanvas.getContext('2d');
+
+	this.x = x;
+	this.y = y;
+	this.dir = dir;
+	this.speed = speed;
+	this.color = color;
+	this.size = 2;
+	this.active = true;
+	this.vspeed = 0;
+	this.alpha = 1;
+
+	var obj = this;
+
+	this.effectInterval = setInterval(function() {
+		obj.vspeed+=.02;
+		obj.alpha-=.005;
+		obj.x += Math.cos(obj.dir)*obj.speed;
+		obj.y += Math.sin(obj.dir)*obj.speed+obj.vspeed;
+	},10);
+
+	this.effectEnd = setTimeout(function() {
+		clearInterval(obj.effectInterval)
+		obj.active = false;
+		effects = effects.filter((effect) => effect.active);
+	},2000 );
+
+	this.draw = function() {
+		if (obj.active) {
+			ctx.fillStyle = obj.color;
+			ctx.globalAlpha = obj.alpha;
+			if (obj.alpha <= 0) ctx.globalAlpha = 0;
+			ctx.fillRect(obj.x,obj.y,obj.size,obj.size);
+		}
+	}
+
+	effects.push(this);
+	
+}
+
+function createFireworks() {
+	new fireworks(Math.random()*fireworksCanvas.width, Math.random()*fireworksCanvas.height);
+
+	fireworksTimeout = setTimeout(function() {
+		
+		createFireworks();
+	}, Math.random()*400+50);
+}
+
+
+
+document.onmousemove = function(e) {
+	rect = document.getElementById('keyboardCanvas').getBoundingClientRect();
+	
+	mouseX = e.x-rect.left;
+	mouseY = e.y-rect.top;
+
+	keyboardCanvas.style.cursor = 'default';
+	
+	if (!gameEnd && gameActive) {
+		keys.forEach(function(key) {
+			if (mouseX > key.x && mouseX < key.x+keyWidth && mouseY > key.y && mouseY < key.y+keyHeight) {
+				keyboardCanvas.style.cursor = 'pointer';
+			}
+
+		});
+		
+		if (mouseX > enterButton.x && mouseX < enterButton.x+enterButton.width && mouseY > enterButton.y && mouseY < enterButton.y+enterButton.height
+		|| mouseX > deleteButton.x && mouseX < deleteButton.x+deleteButton.width && mouseY > deleteButton.y && mouseY < deleteButton.y+deleteButton.height)
+			
+			keyboardCanvas.style.cursor = 'pointer';
+	}
+
+}
+
+function muteAudio() {
+	
+	globalVolume = !globalVolume;
+	setCookie('volume',globalVolume);
+	
+	audioList.forEach(function(audio) {
+		
+		audio.setVolume();
+	});
+	
+	if (globalVolume) muteButton.innerHTML = "\u{1F50A}";
+	else muteButton.innerHTML = "\u{1F507}";
+	
+}
+
+document.onkeypress = function(e) {
+	
+	//console.log(e.key);
+	
+	var letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	
+	if (letters.indexOf(e.key) > -1 && gameActive) {
+		keyTyped(e.key.toUpperCase());
+		
+	}
+	
+}
+
+document.onkeydown = function(e) {
+	
+	if (!gameEnd && gameActive) {
+		if (e.key == 'Backspace') {
+			deletePressed();
+		}
+		
+		if (e.key == "Enter") {
+			
+			enterPressed();
+				
+		}
+	} else if (stats.style.display != "none")  {
+		showStats(false);
+		
+		
+	} else if (gameEnd) giveUp();
+}
+
+
+
+</script>
+
+<body onload="checkCookie('theme'); load(); checkCookie('volume'); checkWordleCookie(); menuResize();" onclick="pageClicked()" >
+
+<div id="topBar">
+	<script> loadMenuBar()</script>
+</div>
+
+<div id="mainWrapper">
+<div id="mainInner">
+
+<div class="pageHeader">Wordle</div>
+
+
+<div>	
+	<div class="canvasDiv">
+
+		<button id="statsButton" onclick="showStats(true)">Stats</button>
+		<button id="giveUpButton" onclick="giveUp()">Give Up</button>
+		<button id="muteButton" onclick="muteAudio()"></button>
+
+	</div>
+
+	<div class="canvasDiv">
+	
+		<canvas id="cellCanvas" tabindex='1'></canvas>
+	</div>
+
+	<div class="canvasDiv">
+		<canvas id="keyboardCanvas" onclick="keyClicked()"></canvas>
+	</div>
+	
+	
+	
+</div>
+
+<div><object id="wordFile" data="Wordle/wordlist.txt" style="display:none"></object></div>
+
+
+
+</div>
+</div>
+
+<div id='stats'>
+	<div id="statsText"></div>
+	<button id='closeButton' onclick="closestats()">X</button>
+	<button id='resetStatsButton' onclick='resetCookies()'>Delete Data</button>
+</div>
+
+<canvas id='fireworksCanvas'></canvas>
+
+
+
+
+
+</body>
+</html>

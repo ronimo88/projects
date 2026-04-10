@@ -1,0 +1,856 @@
+:root {
+	--dropdown-display: none;
+	--content-width:1350px;
+	--content-width-small:1000px;
+	--link-color:#2196F3;
+	--box-align: left;
+	--title-color: #306070;
+}
+
+
+body {
+	font-size: 16px; 
+	font-family: Arial;  
+	background-color: var(--bg-color);
+	color: #000;
+	margin:0px;
+}
+
+table {
+	//margin-bottom: 20px; 
+	//border-color: white;
+	//padding:10px; 
+	//border-collapse: collapse;
+}
+
+.barLinks {
+
+	margin-right:15px;
+	color: white;
+	text-decoration: none;
+	font-weight:bold;
+	//vertical-align:middle;
+	position:relative;
+	top:-8px;
+}
+
+#topBar {
+	position:sticky;
+	top:0;
+	background-color: var(--title-color);
+	min-height:35px;
+	padding-top:10px;
+	padding-bottom:5px;
+	display:flex;
+	justify-content:center;
+	margin-bottom:10px;
+	z-index:1000;
+	
+}
+
+#topBarInner {
+	
+	width:var(--content-width);
+	margin:0px 10px;
+	//margin:auto;
+}
+
+#topBarLeft{
+	float:left;
+	//display: flex;
+	//justify-content: left;
+	//vertical-align:center;
+}
+
+#topBarRight{
+	float:right;
+	//display: flex;
+	//justify-content: right;
+	padding-top:2px;
+}
+
+#title {
+	color:white;
+	font-size:20px;
+	font-weight:bold;
+	margin-top:2px;
+	margin-left:0px;
+	margin-right:50px;
+	//float:left;
+	position:relative;
+	top:-8px;
+
+}
+
+#logo {
+
+	//margin-top:-10px;
+	//margin-left: 10px;
+	margin-right:5px;
+	//padding:0px;
+
+}
+
+
+#themeLabel {
+	padding-right:10px;
+	//color:white;
+	//font-weight:bold;
+	//font-size:18px;
+	//padding-top:2px;
+}
+
+.pageHeader {
+	color: var(--text-color);
+	font-size:20px;
+	font-weight:bold;
+	text-align:center;
+}
+
+
+.intro {
+	color: var(--text-color);
+	font-size:16px;	
+	width: fit-content;
+	//max-width:var(--content-width);
+	margin:10px auto;
+	margin-bottom:20px;
+	padding: 15px;
+	border-style:solid;
+	border-width:1px;
+	border-color:var(--border-color);
+	background-color:var(--block-color);
+	border-radius:15px;
+}
+
+#homeIntro {
+	max-width:610px;
+}
+
+#pongIntro {
+	max-width:700px;
+}
+
+.header2 {
+
+	color: var(--text-color);
+	font-size:16px;	
+	max-width:200px;
+	margin-left:auto;
+	margin-right:auto;
+	margin-top:30px;
+	margin-bottom:5px;
+	padding: 10px;
+	//background-color:var(--block-color);
+	border-radius:15px;
+	text-align:center;
+	font-weight:bold;
+}
+
+#main {
+	
+	padding:20px;
+	max-width:var(--content-width);
+	font-size:14px;
+	display: flex;
+	justify-content: center;
+
+}
+
+#minesweeperMain, #slidePuzzleMain {
+	
+	display:flex;
+	justify-content: left;
+	width:fit-content;
+	margin:auto;
+	border-style:solid;
+	padding:10px;
+	background-color:var(--title-color);
+	border-radius:15px;
+
+}
+
+
+#rankingsMain {
+	
+	padding:20px;
+	font-size:14px;
+	//display: flex;
+	//justify-content: left;
+
+}
+
+
+#resultsBox, #story, .box, .downloadBox {
+	border-style:solid;
+	border-width:1px;
+	border-color:var(--border-color);
+	background-color: var(--block-color);
+	color: var(--text-color);
+	border-radius: 15px;
+}
+
+#resultsTable {
+	min-width:300px;
+	max-width:525px;
+	margin-bottom:5px;
+
+}
+
+
+#mainWrapper {
+	display: flex;
+	justify-content: center;
+}
+
+#mainInner {
+	max-width:var(--content-width);
+	padding: 20px 10px;	
+}
+
+#minesweeperInner {
+	padding: 20px 10px;	
+}
+
+
+#storyWrapper {
+	display: flex;
+	justify-content: center;
+	//padding: 20px 10px;
+}
+
+#storyInner {
+	max-width:var(--content-width-small);
+	padding: 20px 10px;
+	
+}
+
+#boxWrapper {
+	//margin:auto;
+	max-width: var(--content-width);
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: var(--box-align);
+	overflow: auto;
+	//padding: 10px;
+	//background-color:gray;
+}
+
+
+#pongWrapper {
+	//margin:auto;
+	max-width: var(--content-width);
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	overflow: auto;
+	//padding: 10px;
+	//background-color:gray;
+	margin-left:-50px;
+}
+
+#story {
+	//margin:20px;
+	padding: 20px;
+	max-width:var(--content-width-small);
+	line-height:1.5;
+	//margin:auto;
+	margin-top:20px;
+	margin-bottom:20px;
+	
+}
+
+.box {
+	width: 300px;
+	height: 300px;
+	padding: 5px;
+	margin: 10px;
+	text-decoration:none;
+	//position:relative;
+}
+
+.downloadBox {
+	width: 300px;
+	height: 340px;
+	padding: 5px;
+	margin: 10px;
+	text-decoration:none;
+	//position:relative;
+}
+
+.box:hover {
+	border-color:var(--link-color);
+}
+
+.innerBox {
+	//position:absolute; 
+	padding:10px;
+	height:140px;
+}
+
+
+
+.boxTitle {
+	text-align:center;
+	font-weight:bold;
+	font-size: 16px;
+	margin-bottom:15px;
+}
+
+.boxText {
+	font-size: 14px;
+	font-weight: normal;
+	line-height: 1.5;
+	//filter: none;
+}
+
+.boxImage {
+	//filter: blur(8px);
+	width:290px;
+	height:135px;
+	border-radius:15px;
+	margin:auto;
+}
+
+#inkerdinkImage {
+	background-image: url('images/inkerdink.jpg');
+}
+
+#sportsImage {
+	background-image: url('images/sports.jpg');
+}
+
+#appsImage {
+	background-image: url('images/apps.jpg');
+}
+
+#passerRatingImage {
+	background-image: url('images/passer rating.jpg');
+}
+
+#pongImage {
+	background-image: url('images/pong.png');
+}
+
+#golImage {	
+	background-image: url('images/gol.png');
+}
+
+#snakeImage {	
+	background-image: url('images/snake.png');
+}
+
+#puzzle15Image {	
+	background-image: url('images/15puzzle.png');
+}
+
+#minesweeperImage {	
+	background-image: url('images/minesweeper.png');
+}
+
+#lightsOutImage {	
+	background-image: url('images/Lights Out.png');
+}
+
+#banjoKazooieImage {	
+	background-image: url('images/Banjo Kazooie.png');
+}
+
+#glydeImage {	
+	background-image: url('images/glyde.png');
+}
+
+#ratioSpiralsImage {	
+	background-image: url('images/Ratio Spirals.png');
+}
+
+
+.downloadLink {
+	text-align:center;
+	font-size:16px;
+	//width:290px;
+	//height:135px;
+	margin-bottom:20px;
+	font-weight:bold;
+	
+}
+
+.downloadLink a {
+	text-decoration:none;
+	color:white;
+	background-color:var(--link-color);
+	border-radius:15px;
+	padding:8px;;
+}
+
+.boxText a, .intro a {
+	
+	color:var(--link-color);
+}
+
+
+#resultsTable th {
+	padding: 5px;
+	color:var(--header-color);
+
+}
+
+#resultsYears {
+	text-align:center; 
+	padding-top:10px; 
+	font-weight:bold; 
+	color:var(--header-color);	
+}
+
+
+
+
+#sportBox, #leagueBox, #conferenceBox, #divisionBox, #locationBox, #teamBox {
+	border-style:solid;
+	border-width:1px;
+	border-color:var(--border-color);
+	background-color: var(--block-color);
+	margin-bottom:20px;
+	margin-right:20px;
+	padding:10px;
+	color:  var(--text-color);
+	border-radius: 15px;
+	
+}
+
+#sportBox, #leagueBox, #conferenceBox, #divisionBox, #locationBox, #teamBox {
+	width:275px;
+}
+
+
+#sliderTable {
+	background-color: var(--block-color);
+	border-style:solid;
+	border-width:1px;
+	border-color:var(--border-color);
+	margin-right:20px;
+	color:  var(--text-color);
+	border-spacing: 0;
+	border-collapse: separate;
+	border-radius: 15px;
+	padding:10px;
+	width:300px;
+}
+
+#sliderTable td {
+	//padding: 5px;
+}
+
+
+
+#filterTable {
+	margin:10px auto;
+	padding-left:20px;
+	padding-right:20px;
+	display: flex;
+	justify-content: var(--box-align);
+	flex-direction: row;
+	flex-wrap: wrap;
+	overflow:auto;
+	max-width:1500px;
+}
+
+#filterTable div {
+	//vertical-align: top;
+	
+}
+
+#startYearSlider, #endYearSlider {
+	width: 150px;
+	accent-color: var(--link-color);
+}
+
+.header {
+	margin-right: 20px;
+	font-weight: bold;
+	text-align:center;
+	color: var(--text-color);
+	margin-bottom: 5px;
+}
+
+input[type=checkbox] {
+	width:20px;
+	height:20px;
+	margin-right:10px;
+	vertical-align: middle;
+	accent-color: var(--link-color);
+	
+}
+
+label  {
+	margin-right: 20px;	
+	vertical-align: middle;
+}
+
+.switch {
+	position: relative;
+	display: inline-block;
+	width: 40px;
+	height: 24px;
+	margin-top:-3px;
+}
+
+.switch input { 
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.themeSlider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #CCC;
+	-webkit-transition: .4s;
+	transition: .4s;
+
+}
+
+.themeSlider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .themeSlider {
+	background-color: var(--link-color);
+}
+
+input:focus + .themeSlider {
+	box-shadow: 0 0 1px var(--link-color);;
+}
+
+input:checked + .themeSlider:before {
+	-webkit-transform: translateX(16px);
+	-ms-transform: translateX(16px);
+	transform: translateX(16px);
+}
+
+.themeSlider.round {
+	border-radius: 24px;
+}
+
+.themeSlider.round:before {
+	border-radius: 50%;
+}
+
+
+/* Dropdown Button */
+.dropbtn {
+	text-align: center;
+	font-size: 28px;
+	width: 32px;
+	height: 32px;
+	font-weight: bold;
+	background: var(--link-color);
+	border-radius: 5px;
+	text-decoration: none;
+	box-shadow: 0px 0px 2px 2px #DDDDDD;
+	cursor: pointer;
+	color: white;
+	margin: 0px;
+	padding: 0px;
+	//margin-right:10px;
+	margin-top:-2px;
+	background-image: url('images/dropdown.png');
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+	position: relative;
+
+	
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+	display: none;
+	position: absolute;
+	right: -5px;
+	top:44px;
+	background-color: var(--bg-color);
+	border-style:solid;
+	border-width:1px;
+	border-color:var(--border-color);
+	color: var(--block-color);
+	border-radius: 5px;
+	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	z-index: 1;
+	border-style:solid;
+	width:200px;	
+}
+
+/* Links inside the dropdown */
+.dropdown-content a, #themeDiv {
+	font-weight: bold;
+	padding: 12px 12px;
+	text-decoration: none;
+	display: block;
+	color: var(--text-color);
+	background: var(--bg-color);
+
+}
+
+#themeDiv {
+	display: flex;
+}
+
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {
+	border-style:solid;
+	border-width:1px;
+	border-color:var(--border-color);
+	background-color: var(--block-color);
+	border-style:solid;
+	border-width:1px;
+	border-color:var(--border-color);
+	color: var(--text-color);
+}
+
+/* Show the dropdown menu on hover */
+.dropdown .dropdown-content {
+	display: var(--dropdown-display);
+	
+}
+
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {
+	border-style:solid;
+	border-width:1px;
+	border-color:var(--border-color);
+	background-color: var(--block-color);
+	color: var(--text-color);
+}
+
+
+
+/*Passer Rating Calculator**/
+
+#passerRatingTable h4 {
+	padding: 10px;
+	margin: 10px;
+	margin-bottom: 0px;
+	padding-bottom: 0px;
+}
+
+
+#passerRatingTable td {
+	padding: 10px;
+}
+
+#submitButton {
+	margin-top: 10px;
+	font-size: var(--text-size);
+	border-radius:15px;
+	padding:5px 8px;
+	background-color:var(--link-color);
+	border-style:none;
+	cursor:pointer;
+	color:white;
+}
+
+#pongButton {
+	width:fit-content;
+	margin-left:auto;
+	margin-right:auto;
+	margin-bottom: 20px;
+	font-size: var(--text-size);
+	border-radius:15px;
+	padding:5px 8px;
+	padding-top:7px;
+	background-color:var(--link-color);
+	border-style:none;
+	cursor:pointer;
+	color:white;
+	font-weight:bold;
+}
+
+
+#passerRatingTable input {
+	width: 100px;
+	font-size: var(--text-size);
+	background-color:#F0F2F5;
+	border-style:solid;
+	border-width:1px;
+	border-color:black;
+}
+
+#output {
+	height: 60px;
+	border-style:solid;
+	margin:10px;
+	padding:10px;
+	background-color:#F0F2F5;
+	border-radius: 15px;
+	color:black;
+	border-width:1px;
+}
+
+#form {
+	width: 340px;
+	height: fit-content;
+	border-style:solid;
+	border-width:1px;
+	border-color:var(--border-color);
+	border-radius:15px;
+	background-color: var(--block-color);
+	color:var(--text-color);
+	padding:10px;
+
+	margin: 20px auto;
+  
+}
+
+#passerRatingIntro {
+	max-width:330px;
+}
+
+
+/* Pong **/
+
+#canvas {
+	border-style:solid;
+	border-color:black;
+	border-width:2px;
+	background-color:black;
+	border-color:var(--game-border-color);
+	margin:auto;
+	
+}
+
+#upArrow, #downArrow {
+	width: 30px;
+	height: 30px;
+	margin: 10px 10px;
+	
+}
+
+#pongTable {
+	//margin-top: auto;
+	//margin-bottom: auto;
+	//background-color:gray;
+	//margin-left:-50px;
+}
+
+#pongArrows {
+	//background-color:green;
+
+	
+}
+
+
+/*Game of Life**/
+
+#mainInnerGOL {
+	//max-width:var(--content-width);
+	padding: 20px 10px;		
+	//background-color:blue;
+	//margin: 0px 20px;
+}
+
+#golBox {
+	
+	display:flex;
+	justify-content:left;
+	border-style:solid;
+	border-width:1px;
+	border-color:var(--border-color);
+	//background-color:red;
+	width:fit-content;
+	margin:auto;
+	//background-color:yellow;
+	
+}
+
+#golMenuWrapper {
+	
+	width:150px;
+	//height:150px;
+	border-style:solid;
+	border-width:1px;
+	border-color:var(--border-color);
+	background-color:var(--block-color);
+	
+}
+
+#golMenu {
+	width:fit-content;
+	height:fit-content;
+	padding:10px;
+	display:flex;
+	justify-content:left;
+	flex-direction: row;
+	flex-wrap: wrap;
+	overflow: auto;
+	
+}
+
+#golCanvas {
+	background-color:var(--bg-color);
+	border-style:solid;
+	border-width:1px;
+	border-color:var(--border-color);	
+}
+
+.golButton {
+	background-color:var(--link-color);
+	border-style:none;
+	border-radius:15px;
+	color:white;
+	padding:8px;
+	margin:5px;
+	width:100px;
+	height:30px;
+	cursor: pointer;	
+}
+
+#fpsSelect {
+	padding-left:5px;
+	margin:5px;
+	width:100px;
+	height:30px;
+}
+
+.golLabel {
+	
+	margin-top:15px;
+	margin-left:5px;
+	margin-right:5px;
+	margin-bottom:5px;
+	color: var(--text-color);
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

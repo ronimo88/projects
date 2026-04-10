@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<title>Inkerdink.com - Pong</title>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+<link rel="stylesheet" href="style.css">
+<script src="myscripts.js"></script>
+<script src="pongScripts.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+
+</head>
+
+
+
+
+<body onload=" checkCookie('theme'), loadPongGame(); menuResize(); " onresize="menuResize()" onclick="pageClicked()" >
+
+<div id="topBar">
+	<script> loadMenuBar()</script>
+</div>
+
+<div id="mainWrapper">
+
+	<div id="mainInner">
+	
+		<div class="pageHeader"> Pong </div>
+	
+		<div class="intro" id="pongIntro"> This is a remake of the classic Pong game. Use the arrow keys to move your paddle up and down or click the game window to use the mouse. On mobile, tap where you want the paddle to move. Dragging doesn't work yet. Score 5 points to win!  </div>
+		
+		<div id="boxWrapper"><button id="pongButton" onClick="startGame()"> NEW GAME </button></div>
+
+		<div id="boxWrapper"><canvas id="canvas" width=900 height=500 onclick="setMouseControls()"></canvas></div>
+
+		
+	</div>
+	
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html>
+<title>15 Puzzle</title>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+<link rel="stylesheet" href="style.css">
+<script src="myscripts.js"></script>
+<script type="text/javascript" src="js/bootstrap-filestyle.min.js"> </script>
+
+</head>
+
+
+<style>
+
+
+#canvasDiv {
+	//margin: auto;
+	width:fit-content;
+	height:fit-content;
+
+}
+
+#canvas {
+	border-style:solid;
+	border-width:1px;
+	border-color:black;	
+	background-color:#333;
+}
+
+
+
+#hud {
+	//display:flex;
+	//justify-content: left;
+	padding-left:10px;
+	width:fit-content;
+	//border-style:solid;
+	position:relative;
+
+}
+
+#menu {
+	height:fit-content;
+	
+}
+
+
+#resetButton, #shuffleButton, #imageInputButton {
+	margin:10px 5px;
+	font-size: 20px;
+	padding:5px;
+	background-color:var(--link-color);
+	border-color: black;
+	border-radius:10px;
+}
+
+#muteButton {
+	font-size: 20px;
+	background-color:gray;
+	position:absolute;
+	bottom:0;
+	right:0;
+	padding:2px;
+	border-radius:10px;
+}
+
+#displayText {
+	margin-top:20px;
+	
+}
+
+#imageCheckbox {
+	margin:10px 5px;
+	margin-right:2px;
+	
+}
+
+label {
+	font-size:16px;
+	color:white;
+}
+
+#imageInput {
+	margin:10px 5px;
+	font-size:16px;
+	color:white;
+}
+
+#timerText {
+	font-family:Arial;
+	font-size: 20px;
+	color:white;
+	margin:10px 5px;
+}
+
+
+
+</style>
+
+
+
+<script>
+
+let canvas, ctx, cells, muteButton, audioList, globalVolume, effects, boardWidth, boardHeight, time, gameStart, gameEnd, gameWin, image, imageMode, imageInput, timerInterval, drawInterval, fireworksTimeout, fireworksAudio, winAudio, timeouts, intervals, startTime;
+
+
+
+
+function load() {
+
+	canvas = document.getElementById("canvas");
+	ctx = canvas.getContext("2d");
+	boardWidth = 4;
+	boardHeight = 4;
+	cellSize = Math.floor(400/boardWidth);
+	audioList = [];
+	effects = [];
+	timeouts = [];
+	intervals = [];
+	globalVolume = true;
+	displayText = document.getElementById('displayText');
+	muteButton = document.getElementById("muteButton");
+	imageMode = false;
+	if (globalVolume) muteButton.innerHTML = "\u{1F50A}";
+	else muteButton.innerHTML = "\u{1F507}";
+	fireworksAudio = new audio("audio/fireworks.mp3",1,true);
+	winAudio = new audio("audio/win.mp3",1,false);
+	
+	image = new Image();
+	imageInput = document.getElementById("imageInput");
+	
+	imageInput.onchange = function(evt) {
+		setImage(evt);
+	}
+	
+	imageInput.onclick = function() {
+		resetGame();
+	}
+	
+	resetGame();
+	
+}
+
+
+
+function resetGame() {
+
+	intervals.forEach(function(interval){clearInterval(interval)});
+	timeouts.forEach(function(timeout){clearTimeout(timeout)});
+	canvas.width = cellSize*boardWidth;
+	canvas.height = cellSize*boardHeight;
+	time = 0;
+	gameStart = false;
+	gameEnd = false;
+	gameWin = false;
+	cells = [];
+	time = 0;
+	timerText.innerHTML = "Time: " + "00:00.00";
+	
+	audioList.forEach(function(audio) {
+		audio.stop();
+	});
+
+	drawInterval = setInterval(function() {
+		drawObjects();
+		
+	}, 1000/60);
+	
+	//effects.forEach(function(effect) {
+		//clearInterval(effect.effectInterval);
+	//});
+	
+	effects = [];
+
+	var num = 1;
+	for(var i=0; i<boardHeight; i++) {
+		for(var j=0; j<boardWidth; j++) {
+			if (num != boardWidth*boardHeight) new cell(j*cellSize,i*cellSize,num);
+			num++;
+		}
+	}	
+}
+
+function shuffle() {
+	
+	resetGame();
+	clearInterval(timerInterval);
+
+	for (var i=0; i<=500; i++) {
+			
+		var c = cells[Math.random()*cells.length>>0];
+		moveCell(c);
+	
+	}
+	
+	gameStart = true;
+	timerInterval = setInterval(gameTimer,10);
+	startTime = new Date().getTime();
+	
+}
+
+
+function gameTimer() {
+	//time+=10;
+	var currentTime = new Date().getTime();
+	time = currentTime - startTime;
+	var date = new Date(time);
+	
+	var minsText;
+	var secsText;
+	var millisText;
+
+	//var mins = Math.floor(time/60000);
+	var mins = date.getMinutes();
+
+	if (mins < 10) minsText = "0"+mins;
+	else minsText = mins;
+
+	//var secs = Math.floor((time - mins*60000)/1000);
+	var secs = date.getSeconds();
+
+	if (secs < 10) secsText = "0"+secs;
+	else secsText = secs;
+
+	//var millis = Math.floor((time-(mins*60000)-(secs*1000))/10);
+	var millis = Math.floor(date.getMilliseconds()/10);
+	
+	if (millis < 10) millisText = "0"+millis;
+	else millisText = millis;
+
+
+	timerText.innerHTML = "Time: " + minsText + ":" + secsText + "." + millisText;
+}
+
+function cell(x,y,num) {
+	this.x = x;
+	this.y = y;
+	this.num = num;
+	this.xstart = x;
+	this.ystart = y;
+	cells.push(this);
+}
+
+function audio(src, vol, loop) {
+	
+	var audioObj = new Audio(src);
+	
+	this.play = function() {
+		audioObj.play();
+	}
+	
+	this.stop = function() {
+		audioObj.pause();
+		audioObj.currentTime = 0;
+	}
+	
+	this.setVolume = function() {
+		
+		audioObj.volume = vol*globalVolume;
+	}
+	
+	this.setVolume(vol);
+	audioObj.loop = loop;
+	
+	audioList.push(this);
+}
+
+
+function fireworks(x,y) {
+					
+	this.x = x;
+	this.y = y;
+	this.colors = ['red','orange','yellow','lime','blue','violet'];
+	this.color = this.colors[Math.random()*this.colors.length>>0];
+	
+	var obj = this;
+	for (var i=0; i<=Math.PI*2; i+=Math.PI/32) {
+		var speed = Math.random()*3+0.5
+		new particle(obj.x,obj.y,i,speed,obj.color);	
+	}
+
+}
+
+function particle(x,y,dir,speed,color) {
+	this.x = x;
+	this.y = y;
+	this.dir = dir;
+	this.speed = speed;
+	this.color = color;
+	this.size = 3;
+	this.active = true;
+	this.vspeed = 0;
+
+	var obj = this;
+
+	this.effectInterval = setInterval(function() {
+		obj.vspeed+=.05;
+		obj.x += Math.cos(obj.dir)*obj.speed;
+		obj.y += Math.sin(obj.dir)*obj.speed+obj.vspeed;
+	},10);
+
+	this.effectEnd = setTimeout(function() {
+		clearInterval(obj.effectInterval)
+		obj.active = false;
+		effects = effects.filter((effect) => effect.active);
+	},800 );
+
+	this.draw = function() {
+		if (obj.active) {
+			ctx.fillStyle = obj.color;
+			ctx.fillRect(obj.x,obj.y,obj.size,obj.size);
+		}
+	}
+
+	effects.push(this);
+	
+}
+
+
+function drawObjects() {
+	
+	ctx.clearRect(0,0,canvas.width,canvas.height);
+
+	cells.forEach(function(cell) {
+
+		var fontSize = cellSize*0.5;
+		ctx.font = "bold " + fontSize + "px Arial";
+		ctx.textBaseline = "middle";
+		ctx.textAlign = "center"
+		ctx.lineWidth = 1;
+
+		
+		ctx.fillStyle = "white";
+		if (gameWin && !imageMode) ctx.fillStyle = "cyan";
+		
+		ctx.fillRect(cell.x, cell.y, cellSize, cellSize);
+		
+		if (imageMode && image.src != "") {
+
+			ctx.drawImage(image,cell.xstart*image.width/canvas.width,cell.ystart*image.height/canvas.height,image.width/boardWidth,image.height/boardHeight,cell.x,cell.y,cellSize,cellSize);
+			
+		} else {
+			ctx.fillStyle = "black";
+			ctx.fillText(cell.num,cell.x+cellSize/2,cell.y+cellSize/2);
+		}
+		
+		
+		if (imageMode &&!gameWin || !imageMode ) {
+
+			ctx.strokeStyle = "black";
+			ctx.strokeRect(cell.x, cell.y, cellSize, cellSize);
+		}
+
+	});
+
+	effects.forEach(function(effect) {
+		effect.draw();
+	});
+	
+	
+}
+
+
+
+function createFireworks() {
+	new fireworks(Math.random()*canvas.width, Math.random()*canvas.height);
+
+	fireworksTimeout = setTimeout(function() {
+		createFireworks();
+	}, Math.random()*400+50);
+}
+
+function checkWin() {
+
+	var win = true;
+	
+	cells.forEach(function(cell) {
+		if (cell.x != cell.xstart || cell.y != cell.ystart) {
+			win = false;
+			//break; 
+		}
+	});
+	
+	if (win) {
+	
+		gameWin = true;
+		gameEnd = true;
+		clearInterval(timerInterval);
+		fireworksAudio.play();
+		winAudio.play();
+		createFireworks();
+	}
+
+}
+
+function moveCell(cell) {
+
+	var moveUp = true;
+	var moveDown = true;
+	var moveLeft = true;
+	var moveRight = true;
+	
+	cells.forEach(function(other) {
+	
+		if (cell.y - cellSize == other.y && cell.x == other.x || cell.y == 0) moveUp = false;
+		if (cell.y + cellSize == other.y && cell.x == other.x || cell.y == canvas.height-cellSize) moveDown = false;
+		if (cell.x - cellSize == other.x && cell.y == other.y || cell.x == 0) moveLeft = false;
+		if (cell.x + cellSize == other.x && cell.y == other.y || cell.x == canvas.width-cellSize) moveRight = false;
+	});
+	
+	if (moveUp) cell.y -= cellSize;
+	else if (moveDown) cell.y += cellSize;
+	else if (moveLeft) cell.x -= cellSize;
+	else if (moveRight) cell.x += cellSize;
+	
+	
+	if (gameStart && (moveUp || moveDown ||  moveLeft || moveRight)) {
+		checkWin();
+		
+	}
+
+}
+
+
+function leftClicked() {
+
+	if (!gameEnd) {
+
+		var clickedCell = null;
+
+		cells.forEach(function(cell) {
+
+			if (mouseX > cell.x && mouseX < cell.x+cellSize && mouseY >= cell.y && mouseY < cell.y+cellSize) {
+			
+				clickedCell = cell;
+
+			}
+		});	
+		
+		
+		if (clickedCell != null) {
+		
+			moveCell(clickedCell);
+
+		}
+	}
+	
+	
+
+}
+
+
+function muteAudio() {
+	
+	globalVolume = !globalVolume;
+	setCookie('volume',globalVolume);
+	
+	audioList.forEach(function(audio) {
+		
+		audio.setVolume();
+	});
+	
+	if (globalVolume) muteButton.innerHTML = "\u{1F50A}";
+	else muteButton.innerHTML = "\u{1F507}";
+	
+}
+
+function changeimageMode() {
+	
+	var checkbox = document.getElementById("imageCheckbox");
+	imageMode = checkbox.checked;
+
+}
+
+function setImage(evt) {
+
+		var files = evt.target.files;
+		var file = files[0];
+		
+		 if (file.type.match('image.*')) {
+		
+			var reader = new FileReader();
+			// Read in the image file as a data URL.
+			reader.readAsDataURL(file);
+			reader.onload = function(evt){
+	
+				if( evt.target.readyState == FileReader.DONE) {
+					image.src = evt.target.result;
+					image.onload = function() {
+						//image.style.width = boardWidth*cellSize;
+						//image.style.height = boardHeight*cellSize;
+					}
+					
+					
+					imageMode = true;
+					document.getElementById("imageCheckbox").checked = true;
+					
+				}
+			}    
+
+		} else {
+			alert("not an image");
+		}
+}
+
+var _setTimeout = setTimeout;
+setTimeout = function(a,b) {
+	var timeout = _setTimeout(a,b);
+	timeouts.push(timeout);
+	return timeout;
+}
+
+var _setInterval = setInterval;
+setInterval = function(a,b) {
+	var interval = _setInterval(a,b);
+	intervals.push(interval);
+	return interval;
+}
+
+
+
+document.onmousemove = function(e) {
+
+	var rect = canvas.getBoundingClientRect();
+	
+	mouseX = e.x - rect.left;
+	mouseY = e.y - rect.top;
+}
+
+document.addEventListener('contextmenu', event => {
+    event.preventDefault();
+});
+
+
+
+</script>
+
+<body onload="checkCookie('theme'); load(); checkCookie('volume'); menuResize();" onclick="pageClicked()" >
+
+<div id="topBar">
+	<script> loadMenuBar()</script>
+</div>
+
+<div id="mainWrapper">
+<div id="mainInner">
+
+<div class="pageHeader">15 Puzzle</div>
+<div class="intro">This is the 15 Puzzle game! Try to move all the pieces to the correct spots.</div>
+
+
+<div id="slidePuzzleMain">	
+
+
+	<div id="canvasDiv">
+	
+	
+	<canvas id="canvas" onclick="leftClicked()" oncontextmenu="rightClicked()"></canvas>
+
+	</div>
+	
+	<div id="hud">
+	
+		<div id="menu">
+			
+			
+			<div><button id="resetButton" onclick="resetGame()">Reset</button></div>
+			<div><button id="shuffleButton" onclick="shuffle()">Shuffle</button></div>
+			
+			<input id="imageInput" class="filestyle" type="file" name="filename" accept="image/gif, image/jpeg, image/png" style="display:none">
+			<input id="imageInputButton" type="button" value="Choose Image" onclick="document.getElementById('imageInput').click()" />
+			
+			<div>
+				<input type="checkbox" id="imageCheckbox" onclick="changeimageMode()">
+				<label for="imageCheckbox">Show Image</label> 
+			</div>
+			
+			<div id="timerText"></div>
+			
+			
+			<button id="muteButton" onclick="muteAudio()"></button>
+			
+	
+		</div>
+	</div>
+	
+	
+</div>
+</div>
+</div>
+
+
+</body>
+<html>

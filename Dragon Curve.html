@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<title>Dragon Curve</title>
+<style>
+
+#wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	top: 0;
+	left: 0;
+	min-height: 100%;
+	min-width: 100%;
+	padding:20px;
+}
+
+</style>
+
+<script>
+
+let lineLength, iterations;
+
+function load() {
+	
+	setIterations(0);
+	draw();
+	
+}
+
+function draw() {
+	var canvas = document.getElementById('canvas');
+	var ctx = canvas.getContext('2d');
+	var lineXStart = 0;
+	var lineYStart = 0;
+	var lineX = lineXStart;
+	var lineY = lineYStart;
+	var lineWidth = 1;
+	var boundsLeft = 0;
+	var boundsRight = 0;
+	var boundsTop = 0;
+	var boundsBottom = 0;
+	var backgroundColor = 'white';
+	var lineColor = 'black';
+	var lines = [new line(0)];
+	
+	canvas.style.backgroundColor = backgroundColor;
+	document.body.style.backgroundColor = backgroundColor;
+	
+	for (var i=1; i<=iterations; i++) {
+
+		var newLines = [];
+		for (var j=lines.length-1; j>=0; j--) {
+			var l = lines[j];
+			var num = l.dir+Math.PI/2;
+			if (num>=Math.PI*2) num=0;
+			newLines.push(new line(num));
+		}
+
+		newLines.forEach(function(l) {
+			lines.push(l);
+		});
+	}
+	
+	lines.forEach(function(line) {
+	
+		if (line.dir == 0) lineX += lineLength;
+		else if (line.dir == Math.PI/2) lineY -= lineLength;
+		else if (line.dir == Math.PI) lineX -= lineLength;
+		else if (line.dir == Math.PI*3/2) lineY += lineLength;
+		else {
+			
+			lineX += lineLength*Math.cos(line.dir);
+			lineY += lineLength*Math.sin(line.dir);
+		}
+		
+		line.x = lineX;
+		line.y = lineY;
+		
+		if (lineX < boundsLeft) boundsLeft = lineX;
+		if (lineX > boundsRight) boundsRight = lineX;
+		if (lineY < boundsTop) boundsTop = lineY;
+		if (lineY > boundsBottom) boundsBottom = lineY;
+	});
+	
+	canvas.width = boundsRight - boundsLeft;
+	canvas.height = boundsBottom - boundsTop;
+	
+	lineXStart -= boundsLeft;
+	lineYStart -= boundsTop;
+	
+		
+	lines.forEach(function(line) {
+		line.x -= boundsLeft;
+		line.y -= boundsTop;
+	});
+
+	
+	if (canvas.width == 0) canvas.width = lineWidth;
+	if (canvas.height == 0) canvas.height = lineWidth;
+	
+	ctx.strokeStyle = lineColor;
+	ctx.lineWidth = lineWidth;
+	ctx.beginPath();
+	ctx.moveTo(lineXStart,lineYStart);
+	
+	lines.forEach(function(line) {
+		ctx.lineTo(line.x, line.y);
+
+	});
+	
+	ctx.stroke();
+	ctx.closePath();
+}
+
+function line(dir) {
+	this.dir = dir;
+}
+
+function setIterations(iter) {
+	if (iter < 0) iter = 0;
+	if (iter > 19) iter = 19;
+	iterations = iter;
+	lineLength = Math.floor(600/(Math.pow(Math.sqrt(2),iter)));
+	if (lineLength < 1) lineLength = 1;
+}
+
+document.onkeypress = function(e) {
+
+	if (e.key == 'w' || e.key == 'W') {
+		setIterations(iterations+1);
+		draw();
+	}
+	
+	if (e.key == 's' || e.key == 'S') {
+		setIterations(iterations-1);
+		draw();
+	}
+}
+
+</script>
+
+<body onload='load()'>
+
+<div id='wrapper'>
+	<canvas id='canvas'><canvas>
+</div>
+
+</body>
+</html>

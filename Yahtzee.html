@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html>
+<title>Yahtzee</title>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+<link rel="stylesheet" href="style.css">
+<script src="myscripts.js"></script>
+<script src="wordlist.js"></script>
+
+</head>
+
+<style>
+
+.container {
+
+	width:fit-content;
+	height:fit-content;
+	margin:auto;
+	display:flex;
+	justify-content:center;
+	overflow:auto;
+	flex-direction: row;
+	flex-wrap: wrap;
+	//background-color:green;
+	//border:solid;
+	//border-color:white;
+	//padding:0px 40px;
+}
+
+.scoreTable {
+	color:--var(text-color)
+	margin:20px;
+	font-weight:bold;
+	height:0px;
+	margin:10px;
+}
+
+.scoreTable td {
+	border-style:solid;
+	border-color:var(--border-color);
+	border-width:1px;
+	padding:5px;
+	background-color:lightgray;	
+}
+
+scoreTable tr {
+	height:20px;
+}
+
+#scoreBonusButton td {
+	background-color:#888;
+	cursor:default;
+}
+
+.scoreTable td:nth-child(1) {
+	width:120px;
+}
+
+.scoreTable tr:hover td {
+	cursor:pointer;
+	//background-color:yellow;
+}
+
+.scoreTable td:nth-child(2) {
+	width:30px;
+}
+
+.diceCanvas {
+	border-style:solid;
+	border-color:var(--border-color);
+	margin:5px;
+	background-color:white;
+}
+
+.diceCanvas:hover {
+	cursor:pointer;
+}
+
+
+button {
+	margin:10px 5px;
+	margin-bottom:20px;
+	font-size: 18px;
+	padding:5px;
+	background-color:var(--link-color);
+	border-color: black;
+	border-radius:10px;
+	cursor:pointer;
+}
+
+#rollButton {
+	position:relative;
+	left:0px;
+	top:0px;
+	//z-index:2;
+}
+
+
+
+#resetStatsButton {
+	position:absolute;
+	left:0;
+	right:0;
+	bottom:10px;
+	margin:auto;
+	width:fit-content;
+}
+
+#scoreText, #rollsText {
+	color: var(--text-color);
+	font-size: 18px;
+	//background-color:red;
+	height:fit-content;
+	margin:10px 5px;
+	padding:5px;
+
+}
+
+</style>
+
+
+<script>
+
+let canvas, diceCanvas1, diceCanvas2, diceCanvas3, diceCanvas4, diceCanvas5, ctx, dice, diceArray, diceSize, audioList, effects, timeouts, intervals, globalVolume, gameEnd, gameWin, mouseX, mouseY, gameActive, rollingTimeout, rollingInterval, rolling, rolls, score1Selected, score2Selected, score3Selected, score4Selected, score5Selected, score6Selected, score3KSelected, score4KSelected, scoreFHSelected, scoreSSSelected, scoreLSSelected, scoreChanceSelected, scoreYahtzeeSelected, score1, score2, score3, score4, score5, score6, score3K, score4K, scoreFH, scoreSS, scoreLS, scoreChance, scoreYahtzee, scoreBonus, bonusYahtzee;
+
+function load() {
+	//canvas = document.getElementById('gameCanvas');
+	diceCanvas1 = document.getElementById("diceCanvas1");
+	diceCanvas2 = document.getElementById("diceCanvas2");
+	diceCanvas3 = document.getElementById("diceCanvas3");
+	diceCanvas4 = document.getElementById("diceCanvas4");
+	diceCanvas5 = document.getElementById("diceCanvas5");
+	
+	//ctx = canvas.getContext("2d");
+	diceSize = 50;
+	//canvas.width = (diceSize+20)*5+20
+	//canvas.height = diceSize+40;
+	
+	diceCanvas1.width = diceSize;
+	diceCanvas1.height = diceSize;
+	diceCanvas2.width = diceSize;
+	diceCanvas2.height = diceSize;
+	diceCanvas3.width = diceSize;
+	diceCanvas3.height = diceSize;
+	diceCanvas4.width = diceSize;
+	diceCanvas4.height = diceSize;
+	diceCanvas5.width = diceSize;
+	diceCanvas5.height = diceSize;
+
+	globalVolume = true;
+	audioList = [];
+	
+	startGame();
+}
+
+function startGame() {
+	clearTimeout(rollingTimeout);
+	clearInterval(rollingInterval);
+	effects = [];
+	timeouts = [];
+	intervals = [];
+	dice = [];
+	gameEnd = false;
+	gameWin = false;
+	gameActive = false;
+	rolling = false;
+	score = 0;
+	score1Selected = false;
+	score2Selected = false;
+	score3Selected = false;
+	score4Selected = false;
+	score5Selected = false;
+	score6Selected = false;
+	score3KSelected = false;
+ 	score4KSelected = false;
+	scoreFHSelected = false;
+	scoreSSSelected = false;
+	scoreLSSelected = false;
+	scoreChanceSelected = false;
+	scoreYahtzeeSelected = false;
+	score1 = 0;
+	score2 = 0;
+	score3 = 0;
+	score4 = 0;
+	score5 = 0;
+	score6 = 0;
+	score3K = 0; 
+	score4K = 0; 
+	scoreFH = 0; 
+	scoreSS = 0;
+	scoreLS = 0; 
+	scoreChance = 0; 
+	scoreYahtzee = 0;
+	scoreBonus = 0;
+	bonusYahtzee = false;
+
+	
+	new die(diceCanvas1);
+	new die(diceCanvas2);
+	new die(diceCanvas3);
+	new die(diceCanvas4);
+	new die(diceCanvas5);
+	
+
+	//drawInterval = setInterval(function() {
+		//drawObjects();
+	//}, 1000/60);
+
+	//dice.forEach(function(die) {die.randomize()});
+	
+	drawObjects();
+
+	resetRolls();
+	//console.log('Rolls: '+rolls);
+	
+}
+
+
+function die(canvas) {
+	
+	//this.x=x;
+	//this.y=y;
+	this.canvas = canvas;
+	this.ctx = this.canvas.getContext('2d');
+	this.num=0; 
+	this.hold = false;
+	var obj=this;
+
+	this.randomize = function() {
+		obj.num = Math.ceil(Math.random()*6);	
+	}
+	
+	this.drawDot = function(x,y) {
+		obj.ctx.beginPath();
+		obj.ctx.arc(x,y,diceSize/12,0,Math.PI*2);
+		obj.ctx.fill();
+		obj.ctx.closePath();
+	}
+
+	dice.push(this);	
+}
+
+
+function drawObjects() {
+
+	dice.forEach(function(die) {
+		die.ctx.clearRect(0,0,die.canvas.width,die.canvas.height);
+		
+		if (die.num != 0) {
+			var fontSize = diceSize*0.5;
+			die.ctx.font = "bold " + fontSize + "px Arial";
+			die.ctx.textBaseline = "middle";
+			die.ctx.textAlign = "center"
+			die.ctx.lineWidth = 1;
+		
+			//let val = document.getElementById("themeSlider").checked;
+			
+			if (die.hold) die.ctx.fillStyle = "#555";
+			else  die.ctx.fillStyle = "white";
+
+			die.ctx.strokeStyle = "black"
+			die.ctx.strokeRect(0, 0, diceSize, diceSize);
+			die.ctx.font = "Arial 20px";
+			
+			die.ctx.fillRect(0, 0, diceSize, diceSize);
+			die.ctx.fillStyle = 'black';
+			if (die.hold) die.ctx.fillStyle = 'white';
+			die.ctx.textBaseline = 'middle';
+			die.ctx.textAlign = 'center';
+			//die.ctx.fillText(die.num, die.x+diceSize/2, die.y+diceSize/2);
+
+			if (die.num == 1) {
+				//console.log(1);
+				die.drawDot(diceSize/2,diceSize/2);
+			}
+
+			if (die.num == 2) {
+				//console.log(2);
+				die.drawDot(diceSize/4,diceSize/4);
+				die.drawDot(diceSize*3/4,diceSize*3/4);
+			}
+			
+			if (die.num == 3) {
+				//console.log(3);
+				die.drawDot(diceSize*3/4,diceSize/4);
+				die.drawDot(diceSize/2,diceSize/2);
+				die.drawDot(diceSize/4,diceSize*3/4);
+			}
+
+			if (die.num == 4) {
+				//console.log(4);
+				die.drawDot(diceSize/4,diceSize/4);
+				die.drawDot(diceSize*3/4,diceSize*3/4);
+				die.drawDot(diceSize*3/4,diceSize/4);
+				die.drawDot(diceSize/4,diceSize*3/4);
+			}
+
+			if (die.num == 5) {
+				//console.log(5);
+				die.drawDot(diceSize/2,diceSize/2);
+				die.drawDot(diceSize/4,diceSize/4);
+				die.drawDot(diceSize*3/4,diceSize*3/4);
+				die.drawDot(diceSize*3/4,diceSize/4);
+				die.drawDot(diceSize/4,diceSize*3/4);
+			}
+
+			if (die.num == 6) {
+				//console.log(6);
+				die.drawDot(diceSize/4,diceSize/2);
+				die.drawDot(diceSize*3/4,diceSize/2);
+				die.drawDot(diceSize/4,diceSize/4);
+				die.drawDot(diceSize*3/4,diceSize*3/4);
+				die.drawDot(diceSize*3/4,diceSize/4);
+				die.drawDot(diceSize/4,diceSize*3/4);
+			}
+		}	
+	});
+
+	effects.forEach(function(effect) {
+		effect.draw();
+	});
+
+	
+}
+
+
+
+function keyTyped(key) {
+	
+	if (gameActive) {
+		cells.forEach(function(cell) {
+			
+			if (cell.row == row && cell.column == column) cell.letter = key;
+		});
+
+		if (column < 5) column++;
+	}
+}
+
+function keyClicked() {
+	if (gameActive) {
+		keys.forEach(function(key) {
+			if (mouseX > key.x && mouseX < key.x+keyWidth && mouseY > key.y && mouseY < key.y+keyHeight) {
+				keyTyped(key.letter);
+			}
+
+		});
+		
+		if (mouseX > enterButton.x && mouseX < enterButton.x+enterButton.width && mouseY > enterButton.y && mouseY < enterButton.y+enterButton.height)
+			enterPressed();
+		
+		
+		if (mouseX > deleteButton.x && mouseX < deleteButton.x+deleteButton.width && mouseY > deleteButton.y && mouseY < deleteButton.y+deleteButton.height)
+			deletePressed();
+	}
+}
+
+function closestats() {
+	showStats(false)
+	if (!gameEnd) gameActive = true;
+	
+}
+
+function enterPressed() {
+
+	
+}
+
+function deletePressed() {
+
+}
+
+function giveUp() {
+
+
+	if(!gameEnd && gameActive) {
+		gamesPlayed++;
+		gameEnd = true;
+		streak = 0;
+		updateCookie();
+		showStats(true);
+		giveUpButton.innerHTML = "New Game";
+		
+		cells.forEach(function(cell) {
+			if (cell.color == 0) cell.color = 1;
+		});
+	} else {
+		
+		startGame();
+		newGame();
+		giveUpButton.innerHTML = "Give Up";
+	}
+		
+}
+
+
+
+function updateCookie() {
+	var arr = [];
+	arr.push(wins);
+	arr.push(gamesPlayed);
+	arr.push(streak);
+	arr.push(word);
+	arr.push(row);
+	arr.push(saveGame);
+	
+	cells.forEach(function(cell) {
+		arr.push(cell.letter);
+		arr.push(cell.color);
+	});
+	
+	keys.forEach(function(key) {
+		arr.push(key.color);
+	});
+	
+	
+	var json_str = JSON.stringify(arr);
+	//setCookie('wordleCookie',json_str);	
+}
+
+function resetCookies() {
+
+	const response = confirm("Do you want to delete all saved data?");
+	
+	if (response) {
+		load()
+		updateCookie();
+		alert('Data Deleted');
+		newGame();
+	}
+
+}
+
+/*
+function canvasClicked() {
+
+	if (!gameEnd && gameActive && !rolling && rolls>0) {
+		dice.forEach(function(die) {
+			if (mouseX > die.x && mouseX < die.x+diceSize && mouseY > die.y && mouseY < die.y+diceSize) {
+				die.hold = !die.hold;
+				drawObjects();
+				
+			}
+
+		});
+		
+	}
+
+}*/
+
+function diceClicked(num) {
+
+	if (!gameEnd && gameActive && !rolling && rolls>0) {
+		dice[num].hold = !dice[num].hold;
+		drawObjects();
+	}
+
+}
+
+document.onmousemove = function(e) {
+	/*
+	rect = canvas.getBoundingClientRect();
+	
+	mouseX = e.x-rect.left;
+	mouseY = e.y-rect.top;
+
+	canvas.style.cursor = 'default';
+	
+	if (!gameEnd && gameActive && rolls>0 && !rolling) {
+		dice.forEach(function(die) {
+			if (mouseX > die.x && mouseX < die.x+diceSize && mouseY > die.y && mouseY < die.y+diceSize) {
+				canvas.style.cursor = 'pointer';
+				
+			}
+
+		});
+		
+	}
+	*/
+
+}
+
+document.onkeypress = function(e) {
+	
+	//console.log(e.key);
+	
+	if (e.key == 'Enter' && !rolling) {
+
+		startRoll();
+		
+	}
+}
+
+function startRoll() {
+	
+	if (!rolling) {
+		gameActive = true;
+
+		if (rolls>0) {
+			rolling = true;
+			rolls--;
+			document.getElementById('rollsText').innerHTML = 'Rolls: '+rolls;
+			rollingInterval = setInterval(rollDice,50)
+			rollingTimeout = setTimeout(stopRoll,500);
+			
+			if (rolls == 0) {
+				document.getElementById('rollButton').style.backgroundColor = 'gray';
+			}
+		}
+			
+		//console.log('Rolls: '+rolls);
+	}
+}
+
+function rollDice() {
+	document.body.style.cursor = 'default';
+	dice.forEach(function(die) {
+		if (!die.hold) die.randomize();
+		drawObjects();
+	});
+}
+
+function stopRoll() {
+	clearInterval(rollingInterval);
+	rolling = false;
+	
+	var num1 = 0;
+	var num2 = 0;
+	var num3 = 0;
+	var num4 = 0;
+	var num5 = 0;
+	var num6 = 0;
+	
+	bonusYahtzee = false;
+
+	dice.forEach(function(die) {
+		
+		if (die.num==1) num1++;
+		if (die.num==2) num2++;
+		if (die.num==3) num3++;
+		if (die.num==4) num4++;
+		if (die.num==5) num5++;
+		if (die.num==6) num6++;
+	});
+	
+	var total = num1*1 + num2*2 + num3*3 + num4*4 + num5*5 + num6*6
+
+	if (!score1Selected) score1 = num1;
+	if (!score2Selected) score2 = num2*2;
+	if (!score3Selected) score3 = num3*3;
+	if (!score4Selected) score4 = num4*4;
+	if (!score5Selected) score5 = num5*5;
+	if (!score6Selected) score6 = num6*6;
+
+	if (!score3KSelected) {
+		score3K = 0;
+		if (num1 >= 3 || num2 >= 3 || num3 >=3 || num4 >= 3 || num5 >= 3 || num6 >= 3) score3K = total;
+	}
+
+	if (!score4KSelected) {
+		score4K = 0;
+		if (num1 >= 4 || num2 >= 4 || num3 >=4 || num4 >= 4 || num5 >= 4 || num6 >= 4) score4K = total;
+	}
+
+	if (!scoreFHSelected) {
+		scoreFH = 0;
+		if (num1 == 3 && num2 == 2
+		|| num1 == 3 && num3 == 2
+		|| num1 == 3 && num4 == 2
+		|| num1 == 3 && num5 == 2
+		|| num1 == 3 && num6 == 2
+
+		|| num2 == 3 && num1 == 2
+		|| num2 == 3 && num3 == 2
+		|| num2 == 3 && num4 == 2
+		|| num2 == 3 && num5 == 2
+		|| num2 == 3 && num6 == 2
+
+		|| num3 == 3 && num1 == 2
+		|| num3 == 3 && num2 == 2
+		|| num3 == 3 && num4 == 2
+		|| num3 == 3 && num5 == 2
+		|| num3 == 3 && num6 == 2
+
+		|| num4 == 3 && num1 == 2
+		|| num4 == 3 && num2 == 2
+		|| num4 == 3 && num3 == 2
+		|| num4 == 3 && num5 == 2
+		|| num4 == 3 && num6 == 2
+
+		|| num5 == 3 && num1 == 2
+		|| num5 == 3 && num2 == 2
+		|| num5 == 3 && num3 == 2
+		|| num5 == 3 && num4 == 2
+		|| num5 == 3 && num6 == 2
+
+		|| num6 == 3 && num1 == 2
+		|| num6 == 3 && num2 == 2
+		|| num6 == 3 && num3 == 2
+		|| num6 == 3 && num4 == 2
+		|| num6 == 3 && num5 == 2)
+			scoreFH = 25;
+	}
+
+	if (!scoreSSSelected) {
+		scoreSS = 0;
+		if (num1 >= 1 && num2 >= 1 && num3 >= 1 && num4 >= 1
+		|| num2 >= 1 && num3 >= 1 && num4 >= 1 && num5 >= 1
+		|| num3 >= 1 && num4 >= 1 && num5 >= 1 && num6 >= 1)
+			scoreSS = 30;
+	}
+
+	if (!scoreLSSelected) {
+		scoreLS = 0;
+		if (num1 >= 1 && num2 >= 1 && num3 >= 1 && num4 >= 1 && num5 >= 1
+		|| num2 >= 1 && num3 >= 1 && num4 >= 1 && num5 >= 1 && num6 >= 1)
+			scoreLS = 30;
+	}
+
+	if (!scoreChanceSelected) scoreChance = total;
+
+	if (!scoreYahtzeeSelected) {
+		scoreYahtzee = 0
+		if (num1 == 5 || num2 == 5 || num3 == 5 || num4 == 5 || num5 == 5 || num6 == 5) {
+			if (scoreYahtzee > 0) {
+				scoreBonus+= 100;
+				setScore(score+100);
+			}
+
+			scoreYahtzee = 50;
+		};
+	} else {
+		if (scoreYahtzee > 0 && (num1 == 5 || num2 == 5 || num3 == 5 || num4 == 5 || num5 == 5 || num6 == 5)) {
+			bonusYahtzee = true;
+		}
+
+	}
+
+	
+	document.getElementById('score1Button').getElementsByTagName('td')[1].innerHTML = score1;
+	document.getElementById('score2Button').getElementsByTagName('td')[1].innerHTML = score2;
+	document.getElementById('score3Button').getElementsByTagName('td')[1].innerHTML = score3;
+	document.getElementById('score4Button').getElementsByTagName('td')[1].innerHTML = score4;
+	document.getElementById('score5Button').getElementsByTagName('td')[1].innerHTML = score5;
+	document.getElementById('score6Button').getElementsByTagName('td')[1].innerHTML = score6;
+	document.getElementById('score3KButton').getElementsByTagName('td')[1].innerHTML = score3K;
+	document.getElementById('score4KButton').getElementsByTagName('td')[1].innerHTML = score4K;
+	document.getElementById('scoreFHButton').getElementsByTagName('td')[1].innerHTML = scoreFH;
+	document.getElementById('scoreSSButton').getElementsByTagName('td')[1].innerHTML = scoreSS;
+	document.getElementById('scoreLSButton').getElementsByTagName('td')[1].innerHTML = scoreLS;
+	document.getElementById('scoreChanceButton').getElementsByTagName('td')[1].innerHTML = scoreChance;
+	document.getElementById('scoreYahtzeeButton').getElementsByTagName('td')[1].innerHTML = scoreYahtzee;
+	
+
+}
+
+function scoreDice(type) {
+	if (gameActive && !rolling) {
+
+		if (type == '1' && !score1Selected) {
+			score1Selected = true;
+			gameActive = false;
+			resetRolls();
+			document.getElementById('score1Button').getElementsByTagName('td')[0].style.backgroundColor = 'lime'
+			document.getElementById('score1Button').getElementsByTagName('td')[1].style.backgroundColor = 'lime'
+			setScore(score+score1);
+			console.log(score);
+		}
+		
+		if (type == '2' && !score2Selected) {
+			score2Selected = true;
+			gameActive = false;
+			resetRolls();
+			document.getElementById('score2Button').getElementsByTagName('td')[0].style.backgroundColor = 'lime'
+			document.getElementById('score2Button').getElementsByTagName('td')[1].style.backgroundColor = 'lime'
+			setScore(score+score2);
+			console.log(score);
+		}
+		
+		if (type == '3' && !score3Selected) {
+			score3Selected = true;
+			gameActive = false;
+			resetRolls();
+			document.getElementById('score3Button').getElementsByTagName('td')[0].style.backgroundColor = 'lime'
+			document.getElementById('score3Button').getElementsByTagName('td')[1].style.backgroundColor = 'lime'
+			setScore(score+score3);
+			console.log(score);
+		}
+		
+		if (type == '4' && !score4Selected) {
+			score4Selected = true;
+			gameActive = false;
+			resetRolls();
+			document.getElementById('score4Button').getElementsByTagName('td')[0].style.backgroundColor = 'lime'
+			document.getElementById('score4Button').getElementsByTagName('td')[1].style.backgroundColor = 'lime'
+			setScore(score+score4);
+			console.log(score);
+		}
+		
+		if (type == '5' && !score5Selected) {
+			score5Selected = true;
+			gameActive = false;
+			resetRolls();
+			document.getElementById('score5Button').getElementsByTagName('td')[0].style.backgroundColor = 'lime'
+			document.getElementById('score5Button').getElementsByTagName('td')[1].style.backgroundColor = 'lime'
+			setScore(score+score5);
+			console.log(score);
+		}
+		
+		if (type == '6' && !score6Selected) {
+			score6Selected = true;
+			gameActive = false;
+			resetRolls();
+			document.getElementById('score6Button').getElementsByTagName('td')[0].style.backgroundColor = 'lime'
+			document.getElementById('score6Button').getElementsByTagName('td')[1].style.backgroundColor = 'lime'
+			setScore(score+score6);
+			console.log(score);
+		}
+
+		if (type == '3K' && !score3KSelected) {
+			score3KSelected = true;
+			gameActive = false;
+			resetRolls();
+			document.getElementById('score3KButton').getElementsByTagName('td')[0].style.backgroundColor = 'lime'
+			document.getElementById('score3KButton').getElementsByTagName('td')[1].style.backgroundColor = 'lime'
+			setScore(score+score3K);
+			console.log(score);
+		}
+
+		if (type == '4K' && !score4KSelected) {
+			score4KSelected = true;
+			gameActive = false;
+			resetRolls();
+			document.getElementById('score4KButton').getElementsByTagName('td')[0].style.backgroundColor = 'lime'
+			document.getElementById('score4KButton').getElementsByTagName('td')[1].style.backgroundColor = 'lime'
+			setScore(score+score4K);
+			console.log(score);
+		}
+
+		if (type == 'FH' && !scoreFHSelected) {
+			scoreFHSelected = true;
+			gameActive = false;
+			resetRolls();
+			document.getElementById('scoreFHButton').getElementsByTagName('td')[0].style.backgroundColor = 'lime'
+			document.getElementById('scoreFHButton').getElementsByTagName('td')[1].style.backgroundColor = 'lime'
+			setScore(score+scoreFH);
+			console.log(score);
+		}
+
+		if (type == 'SS' && !scoreSSSelected) {
+			scoreSSSelected = true;
+			gameActive = false;
+			resetRolls();
+			document.getElementById('scoreSSButton').getElementsByTagName('td')[0].style.backgroundColor = 'lime'
+			document.getElementById('scoreSSButton').getElementsByTagName('td')[1].style.backgroundColor = 'lime'
+			setScore(score+scoreSS);
+			console.log(score);
+		}
+
+		if (type == 'LS' && !scoreLSSelected) {
+			scoreLSSelected = true;
+			gameActive = false;
+			resetRolls();
+			document.getElementById('scoreLSButton').getElementsByTagName('td')[0].style.backgroundColor = 'lime'
+			document.getElementById('scoreLSButton').getElementsByTagName('td')[1].style.backgroundColor = 'lime'
+			setScore(score+scoreLS);
+			console.log(score);
+		}
+
+		if (type == 'Chance' && !scoreChanceSelected) {
+			scoreChanceSelected = true;
+			gameActive = false;
+			resetRolls();
+			document.getElementById('scoreChanceButton').getElementsByTagName('td')[0].style.backgroundColor = 'lime'
+			document.getElementById('scoreChanceButton').getElementsByTagName('td')[1].style.backgroundColor = 'lime'
+			setScore(score+scoreChance);
+			console.log(score);
+		}
+
+		if (type == 'Yahtzee' && !scoreYahtzeeSelected) {
+			scoreYahtzeeSelected = true;
+			gameActive = false;
+			resetRolls();
+			document.getElementById('scoreYahtzeeButton').getElementsByTagName('td')[0].style.backgroundColor = 'lime'
+			document.getElementById('scoreYahtzeeButton').getElementsByTagName('td')[1].style.backgroundColor = 'lime'
+			setScore(score+scoreYahtzee);
+			console.log(score);
+		}
+	}
+}
+
+function resetRolls() {
+	rolls = 3;
+	document.getElementById('rollsText').innerHTML = 'Rolls: '+rolls;
+	dice.forEach(function(die) {
+		die.hold = false;
+	});
+	document.getElementById('rollButton').style.backgroundColor = 'var(--link-color)';
+	
+
+}
+
+function setScore(num) {
+	
+	score = num
+
+	if (bonusYahtzee) {
+		score += 100;
+		scoreBonus += 100;
+		document.getElementById('scoreBonusButton').getElementsByTagName('td')[1].innerHTML = scoreBonus;	
+	}
+	document.getElementById('scoreText').innerHTML = 'Score: ' + score;
+
+}
+
+document.onkeydown = function(e) {
+	
+	if (!gameEnd && gameActive) {
+		if (e.key == 'Backspace') {
+			deletePressed();
+		}
+		
+		if (e.key == "Enter") {
+			
+			enterPressed();
+				
+		}
+	} else if (stats.style.display != "none")  {
+		showStats(false);
+		
+		
+	} else if (gameEnd) giveUp();
+}
+
+
+
+</script>
+
+<body onload="checkCookie('theme'); load(); checkCookie('volume'); menuResize();" onclick="pageClicked()"  onresize="menuResize()" >
+
+<div id="topBar">
+	<script> loadMenuBar()</script>
+</div>
+
+<div id="mainWrapper">
+<div id="mainInner">
+
+<div class="pageHeader">Yahtzee</div>
+
+
+<div>	
+	<div class='container'>
+	<table class="scoreTable">
+		<tr onclick="scoreDice('1')" id="score1Button">
+			<td>Ones</td>
+			<td>0</td>
+		</tr>
+		<tr onclick="scoreDice('2')" id="score2Button">
+			<td>Twos</td>
+			<td>0</td>
+		</tr>
+		<tr onclick="scoreDice('3')" id="score3Button">
+			<td>Threes</td>
+			<td>0</td>
+		</tr>
+		<tr onclick="scoreDice('4')" id="score4Button">
+			<td>Fours</td>
+			<td>0</td>
+		</tr>
+		<tr onclick="scoreDice('5')" id="score5Button">
+			<td>Fives</td>
+			<td>0</td>
+		</tr>
+		<tr onclick="scoreDice('6')" id="score6Button">
+			<td>Sixes</td>
+			<td>0</td>
+		</tr>
+	</table>
+	
+	<table class="scoreTable">
+		<tr id="score3KButton" onclick="scoreDice('3K')">
+			<td>3 of a Kind</td>
+			<td>0</td>
+		</tr>
+		<tr id="score4KButton" onclick="scoreDice('4K')">
+			<td>4 of a Kind</td>
+			<td>0</td>
+		</tr>
+		<tr id="scoreFHButton" onclick="scoreDice('FH')">
+			<td>Full House</td>
+			<td>0</td>
+		</tr>
+		<tr id="scoreSSButton" onclick="scoreDice('SS')">
+			<td>Small Straight</td>
+			<td>0</td>
+		</tr>
+		<tr id="scoreLSButton" onclick="scoreDice('LS')">
+			<td>Large Straight</td>
+			<td>0</td>
+		</tr>
+		<tr id="scoreChanceButton" onclick="scoreDice('Chance')">
+			<td>Chance</td>
+			<td>0</td>
+		</tr>
+		
+		
+
+	</table>
+	
+	</div>
+
+	<div class='container'>
+	<table class = 'scoreTable'>
+		<tr id="scoreYahtzeeButton" onclick="scoreDice('Yahtzee')">
+			<td>Yahtzee</td>
+			<td>0</td>
+		</tr>
+
+		<tr id="scoreBonusButton">
+			<td>Bonus</td>
+			<td>0</td>
+		</tr>
+	</table>
+
+	</div>
+
+	<div class="container">
+
+		<div id='scoreText'>Score: 0</div>
+		<div id='rollsText'>Rolls: 3</div>
+		<button id='rollButton' onclick="startRoll()">Roll</button>
+
+	</div>
+
+	<div class="container">
+	
+		<canvas class='diceCanvas' id=diceCanvas1 onclick='diceClicked(0)'></canvas>
+		<canvas class='diceCanvas' id=diceCanvas2 onclick='diceClicked(1)'></canvas>
+		<canvas class='diceCanvas' id=diceCanvas3 onclick='diceClicked(2)'></canvas>
+		<canvas class='diceCanvas' id=diceCanvas4 onclick='diceClicked(3)'></canvas>
+		<canvas class='diceCanvas' id=diceCanvas5 onclick='diceClicked(4)'></canvas>
+		
+		
+	</div>
+
+	
+</div>
+
+</div>
+</div>
+
+
+</body>
+</html>

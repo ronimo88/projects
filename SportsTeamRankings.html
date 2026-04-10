@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<title>Inkerdink.com - Sports Team Rankings</title>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+<link rel="stylesheet" href="style.css">
+<script src="myscripts.js"></script>
+	
+</head>
+
+<body onload="checkCookie('theme'); startScript(), menuResize()" onresize="menuResize()" onclick="pageClicked()" >
+
+<div id="topBar">
+	<script>loadMenuBar();</script>
+</div>
+
+
+
+<div id="rankingsMain">
+
+	<div class="pageHeader"> Sports Team Rankings </div>
+	<div class="intro">This is an application that ranks teams from the football and basketball leagues of North America. It ranks teams by win-loss record and can be filtered by various categories. </div>
+
+</div>	
+
+<div id="filterTable">
+
+	<div>
+
+		<div class="header">Years</div>
+		<table id="sliderTable">
+			<tr>
+				<td class="rounded-corners"> 
+					<div id="startYearSliderText"></div> 
+				</td>
+				<td> 
+					<div class="slidecontainer">
+						<input type="range" class="yearSlider" id="startYearSlider" oninput="startYearChanged()">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td> 
+					<div id="endYearSliderText"></div> 
+				</td>
+				<td> 
+					<div class="slidecontainer">
+						<input type="range" class="yearSlider" id="endYearSlider" oninput="endYearChanged()">
+					</div>
+					</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<input type="checkbox" id="sliderCheckbox" onclick="sliderCheckboxClicked()" style="margin-right:10px">Move Both Sliders</input>
+				</td>
+			</tr>
+		</table>
+
+		<div>
+			<div class="header">Sports</div>
+			<div id="sportBox"></div>
+		</div>
+		
+		<div>
+			<div class="header">Leagues</div>
+			<div id="leagueBox"></div>
+		</div>
+			
+		<div>
+			<div class="header">Conferences</div>
+			<div id="conferenceBox"></div>
+		</div>
+
+		<div>
+			<div class="header">Divisions</div>
+			<div id="divisionBox"></div>
+		</div>
+			
+
+	</div>
+
+	<div>
+		<div class="header">Locations</div>
+		<div id="locationBox"></div>
+	</div>
+
+	<div>
+		<div class="header">Teams</div>
+		<div id="teamBox"></div>
+	</div>
+
+	
+	<div>
+		<div class="header">Rankings</div>
+		<div id="resultsBox">
+			<table id="resultsTable"></table>
+		</div>
+	</div>
+</div>
+
+
+
+<div id="mydiv" style="display:none"></div> 
+
+</body>
+<html>

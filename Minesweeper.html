@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html>
+<title>Minesweeper</title>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+<link rel="stylesheet" href="style.css">
+<script src="myscripts.js"></script>
+
+</head>
+
+
+<style>
+
+#canvasDiv {
+	width:fit-content;
+	height:fit-content;
+
+}
+
+#canvas {
+	border-style:solid;
+	border-width:1px;
+	border-color:black;	
+	background-color:black;
+}
+
+#header {
+	font-family:Arial;
+	font-size: 28px;
+	color:white;
+	text-align:center;
+	margin: 10px;
+}
+
+
+#hud {
+	padding-left:10px;
+	width:280px;
+	position:relative;
+
+}
+
+#menu {
+	height:fit-content;
+	
+}
+
+
+#newGameButton, #modeSelect {
+	margin:10px 5px;
+	font-size: 20px;
+	padding:5px;
+	background-color:var(--link-color);
+	border-color: black;
+	border-radius:10px;
+}
+
+#muteButton {
+	font-size: 20px;
+	background-color:gray;
+	position:absolute;
+	bottom:0;
+	right:0;
+	padding:2px;
+	border-radius:10px;
+}
+
+#timerText, #bestTimeText, #flagsText, #displayText{
+	font-family:Arial;
+	font-size: 20px;
+	color:white;
+	margin:10px 5px;
+}
+
+#displayText {
+	margin-top:20px;
+	
+}
+
+
+
+</style>
+
+
+
+<script>
+
+let canvas, ctx, cells, numMines, boardWidth, boardHeight, cellSize, mouseX, mouseY, gameStart, gameEnd, gameWin, mouseClicked, mouseClickTimeout, canRestart, displayText, flagsRemaining, time, timerInterval, exlodeRadius, explodeX, explodeY, explodeMinesInterval, loseAudio, effects, drawInterval, fireworksTimeout, fireworksAudio, globalVolume, audioList, muteButton, revealAudio, errorAudio, multiAudio, bestTime1, bestTime2, bestTime3, bestTimeText, difficulty, flagAudio;
+
+function load() {
+
+	canvas = document.getElementById("canvas");
+	ctx = canvas.getContext("2d");
+	cellSize = 40;
+	audioList = [];
+	globalVolume = true;
+	loseAudio = new audio("audio/myleg.mp3",1,false);
+	mineAudio = new audio("audio/mine.wav",0.1,false);
+	winAudio = new audio("audio/win.mp3",1,false);
+	fireworksAudio = new audio("audio/fireworks.mp3",1,true);
+	revealAudio = new audio("audio/reveal.wav",1,false);
+	errorAudio = new audio("audio/error.wav",0.25,false);
+	multiAudio = new audio("audio/multi.wav",0.25,false);
+	flagAudio = new audio("audio/flag.wav",0.25,false);
+	effects = [];
+	bestTime1 = -1;
+	bestTime2 = -1;
+	bestTime3 = -1
+	bestTimeText = document.getElementById('bestTimeText');
+	bestTimeText.innerHTML = "Best Time: " + "N/A";
+	
+	muteButton = document.getElementById("muteButton");
+	if (globalVolume) muteButton.innerHTML = "\u{1F50A}";
+	else muteButton.innerHTML = "\u{1F507}";
+	
+	//resetBestTimes();
+	
+	setMode(0);
+	startGame();
+}
+
+
+
+function startGame() {
+	clearInterval(timerInterval);
+	clearInterval(explodeMinesInterval);
+	clearInterval(drawInterval);
+	clearTimeout(fireworksTimeout);
+	canvas.width = cellSize*boardWidth;
+	canvas.height = cellSize*boardHeight;
+	time = 0;
+	
+	flagsRemaining = numMines;
+	gameStart = false;
+	gameEnd = false;
+	gameWin = false;
+	mouseClicked = false;
+	canRestart = false;
+	cells = [];
+	displayText = document.getElementById('displayText');
+	flagsText = document.getElementById('flagsText');
+	displayText.innerHTML = "Click any cell to begin.";
+	flagsText.innerHTML = "Mines: " + flagsRemaining;
+	timerText.innerHTML = "Time: " + "00:00";
+	
+	explodeRadius = 0;
+	
+	audioList.forEach(function(audio) {
+		audio.stop();
+	});
+
+	drawInterval = setInterval(function() {
+		//ctx.clearRect(0,0,canvas.width,canvas.height);
+		drawObjects();
+		
+	}, 1000/60);
+	
+	effects.forEach(function(effect) {
+		clearInterval(effect.effectInterval);
+	});
+	
+	
+	effects = [];
+	
+	
+
+	for(var i=0; i<boardWidth; i++) {
+		for(var j=0; j<boardHeight; j++) {
+			new cell(i*cellSize,j*cellSize);
+		}
+	}
+	
+	
+	cells.forEach(function(cell) {
+
+		cells.forEach(function(other) {
+			if (cell.x+cellSize == other.x && cell.y == other.y) {cell.neighborCells.push(other)};
+			if (cell.x+cellSize == other.x && cell.y+cellSize == other.y) {cell.neighborCells.push(other)};
+			if (cell.x == other.x && cell.y+cellSize == other.y) {cell.neighborCells.push(other)};
+			if (cell.x-cellSize == other.x && cell.y+cellSize == other.y) {cell.neighborCells.push(other)};
+			if (cell.x-cellSize == other.x && cell.y == other.y) {cell.neighborCells.push(other)};
+			if (cell.x-cellSize == other.x && cell.y-cellSize == other.y) {cell.neighborCells.push(other)};
+			if (cell.x == other.x && cell.y-cellSize == other.y) {cell.neighborCells.push(other)};
+			if (cell.x+cellSize == other.x && cell.y-cellSize == other.y) {cell.neighborCells.push(other)};		
+		});
+	});
+	
+	//drawCells();
+
+}
+
+
+function gameTimer() {
+	time+=10;
+	
+	var minsText;
+	var secsText;
+
+	var mins = Math.floor(time/60000);
+
+	if (mins < 10) minsText = "0"+mins;
+	else minsText = mins;
+
+	var secs = Math.floor((time - mins*60000)/1000);
+
+	if (secs < 10) secsText = "0"+secs;
+	else secsText = secs;
+
+	var millis = (time-(mins*60000)-(secs*1000))/10
+	//var millis
+
+	timerText.innerHTML = "Time: " + minsText + ":" + secsText + "." + millis;
+}
+
+function cell(x,y) {
+	this.x = x;
+	this.y = y;
+	this.mine = false;
+	this.count = 0;
+	this.mark = 0;
+	this.revealed = false;
+	this.flash = false;
+	this.neighborCells = [];
+	cells.push(this);
+}
+
+function audio(src, vol, loop) {
+	
+	var audioObj = new Audio(src);
+	
+	this.play = function() {
+		audioObj.play();
+	}
+	
+	this.stop = function() {
+		audioObj.pause();
+		audioObj.currentTime = 0;
+	}
+	
+	this.setVolume = function() {
+		
+		audioObj.volume = vol*globalVolume;
+	}
+	
+	this.setVolume(vol);
+	audioObj.loop = loop;
+	
+	audioList.push(this);
+	
+	
+}
+
+
+function explosion(x,y) {
+	
+	this.x = x;
+	this.y = y;
+	this.radius = 0;
+	this.active = true;
+	
+	var obj = this;
+	
+	this.effectInterval = setInterval(function() {
+		obj.radius+=4;
+	}, 10);
+	
+	this.effectEnd = setTimeout(function() {
+		clearInterval(obj.effectInterval)
+		obj.active = false;
+		effects = effects.filter((effect) => effect.active);
+	},300 );
+	
+	this.draw = function() {
+		
+		if (obj.active) {
+			ctx.strokeStyle = "red";
+			ctx.lineWidth = 4;
+			ctx.beginPath()
+			ctx.arc(obj.x,obj.y,obj.radius,0,2*Math.PI,false);
+			ctx.stroke();
+			ctx.closePath();
+		}
+	}
+	
+	effects.push(this);
+}
+
+function fireworks(x,y) {
+					
+	this.x = x;
+	this.y = y;
+	this.colors = ['red','orange','yellow','lime','blue','violet'];
+	this.color = this.colors[Math.random()*this.colors.length>>0];
+	
+	var obj = this;
+	for (var i=0; i<=Math.PI*2; i+=Math.PI/32) {
+		var speed = Math.random()*3+0.5
+		new particle(obj.x,obj.y,i,speed,obj.color);	
+	}
+
+}
+
+function particle(x,y,dir,speed,color) {
+	this.x = x;
+	this.y = y;
+	this.dir = dir;
+	this.speed = speed;
+	this.color = color;
+	this.size = 3;
+	this.active = true;
+	this.vspeed = 0;
+
+	var obj = this;
+
+	this.effectInterval = setInterval(function() {
+		obj.vspeed+=.05;
+		obj.x += Math.cos(obj.dir)*obj.speed;
+		obj.y += Math.sin(obj.dir)*obj.speed+obj.vspeed;
+	},10);
+
+	this.effectEnd = setTimeout(function() {
+		clearInterval(obj.effectInterval)
+		obj.active = false;
+		effects = effects.filter((effect) => effect.active);
+	},800 );
+
+	this.draw = function() {
+		if (obj.active) {
+			ctx.fillStyle = obj.color;
+			ctx.fillRect(obj.x,obj.y,obj.size,obj.size);
+		}
+	}
+
+	effects.push(this);
+	
+}
+
+
+function drawObjects() {
+	
+	ctx.clearRect(0,0,canvas.width,canvas.height);
+
+	cells.forEach(function(cell) {
+
+		ctx.font = "bold 32px Arial";
+		ctx.textBaseline = "middle";
+		ctx.textAlign = "center"
+		ctx.lineWidth = 1;
+
+		//if (cell.mine) ctx.fillText("B",cell.x+cellSize/2,cell.y+cellSize/2);
+		
+		if (cell.revealed) {
+		
+			ctx.fillStyle = "white";
+			if (gameWin) ctx.fillStyle = "#333";
+			ctx.fillRect(cell.x, cell.y, cellSize, cellSize);
+			
+			if (cell.mine) {
+				
+				if (gameWin) {
+					ctx.fillStyle = "blue";
+					ctx.fillRect(cell.x, cell.y, cellSize, cellSize);
+					var img = document.getElementById('mine');
+					ctx.drawImage(img,cell.x,cell.y);
+				
+				} else {
+					ctx.fillStyle = "red";
+					ctx.fillRect(cell.x, cell.y, cellSize, cellSize);
+					var img = document.getElementById('mine');
+					ctx.drawImage(img,cell.x,cell.y);
+				}
+			} else if (cell.count > 0) {
+				if (cell.count == 1) ctx.fillStyle = "black";
+				if (cell.count == 2) ctx.fillStyle = "blue";
+				if (cell.count == 3) ctx.fillStyle = "green";
+				if (cell.count == 4) ctx.fillStyle = "red";
+				if (cell.count == 5) ctx.fillStyle = "orange";
+				if (cell.count == 6) ctx.fillStyle = "purple";
+				if (cell.count == 7) ctx.fillStyle = "violet";
+				if (cell.count == 8) ctx.fillStyle = "brown";
+				ctx.fillText(cell.count,cell.x+cellSize/2,cell.y+cellSize/2);
+			}
+		} else {
+		
+			if (cell.flash) {
+				ctx.fillStyle = "yellow";
+				ctx.fillRect(cell.x, cell.y, cellSize, cellSize);
+			} else if (cell.mark == 1) {
+				ctx.fillStyle = "yellow";
+				ctx.fillRect(cell.x, cell.y, cellSize, cellSize);
+				var img = document.getElementById('flag');
+				ctx.drawImage(img,cell.x,cell.y);
+			} else if (cell.mark == 2) {
+				ctx.fillStyle = "lime";
+				ctx.fillRect(cell.x, cell.y, cellSize, cellSize);
+				ctx.fillStyle = "green";
+				ctx.fillText('?',cell.x+cellSize/2,cell.y+cellSize/2);
+			} else {
+				ctx.fillStyle = "#666";
+				ctx.fillRect(cell.x, cell.y, cellSize, cellSize);
+			
+			}
+			
+		}
+		
+		ctx.strokeStyle = "black";
+		ctx.strokeRect(cell.x, cell.y, cellSize, cellSize);
+
+	});
+
+	effects.forEach(function(effect) {
+		effect.draw();
+	});
+	
+	
+	
+	if (gameEnd && explodeRadius > 0) {
+		/*
+		ctx.strokeStyle = "red";
+		ctx.lineWidth = 4;
+		ctx.beginPath()
+		ctx.arc(explodeX,explodeY,explodeRadius,0,2*Math.PI,false);
+		ctx.stroke();
+		ctx.closePath();
+		*/
+	
+	}
+}
+
+function revealCell(cell) {
+
+	cell.revealed = true;
+	revealAudio.play();
+	
+		
+	if (cell.count == 0 && !cell.mine) {
+		multiAudio.play();
+	
+		cell.neighborCells.forEach(function(other) {
+			if (!other.revealed) {
+				
+				revealCell(other);
+				revealAudio.stop();
+			}
+			
+			
+		});
+	} 
+	
+	if (cell.mine) {
+
+		revealAudio.stop();
+		cell.revealed = true;
+
+		explodeX = cell.x+cellSize/2;
+		explodeY = cell.y+cellSize/2;
+		explodeMinesInterval = setInterval(explodeMines,10);
+		new explosion(cell.x+cellSize/2,cell.y+cellSize/2)
+
+		gameEnd = true;
+		clearInterval(timerInterval);
+		mineAudio.stop();
+		mineAudio.play();
+		
+		
+		if (gameEnd) {
+		
+			displayText.innerHTML = "You Lose \u{1F622}";
+			setTimeout(function() {
+				loseAudio.play();
+			},200);
+		
+			setTimeout(function(){
+
+				canRestart = true;
+			},500);
+			
+		}
+
+	}
+}
+
+function createFireworks() {
+	new fireworks(Math.random()*canvas.width, Math.random()*canvas.height);
+
+	fireworksTimeout = setTimeout(function() {
+		createFireworks();
+	}, Math.random()*400+50);
+}
+
+function checkWin() {
+
+	var win = true;
+	
+	cells.forEach(function(cell) {
+	
+		if (!cell.mine && !cell.revealed) win = false;
+	});
+	
+	if (win && !gameWin) {
+		
+		gameWin = true;
+		clearInterval(timerInterval);
+		
+		cells.forEach(function(cell) {
+			cell.revealed = true;
+		});
+		
+		displayText.innerHTML = "You Win! \u{1F600}";
+		winAudio.play();
+		fireworksAudio.play();
+		flagsRemaining = 0;
+		flagsText.innerHTML = "Mines: 0";
+		createFireworks();
+		
+		if (difficulty == 0) {
+			if (bestTime1 == -1 || time < bestTime1) {
+				bestTime1 = time;
+				setBestTimeText(time);
+				setCookie("bestTime1",time);
+			}
+		}
+		
+		if (difficulty == 1) {
+			if (bestTime2 == -1 || time < bestTime2) {
+				bestTime2 = time;
+				setBestTimeText(time);
+				setCookie("bestTime2",time);
+			}
+		}
+		
+		if (difficulty == 2) {
+			if (bestTime3 == -1 || time < bestTime3) {
+				bestTime3 = time;
+				setBestTimeText(time);
+				setCookie("bestTime3",time);
+			}
+		}
+		
+
+		setTimeout(function(){
+	
+			gameEnd = true;	
+			canRestart = true;
+			
+		},500);
+		
+
+	}
+
+}
+
+
+function flashCellsEnd() {
+
+	
+	cells.forEach(function(cell) {
+		cell.flash = false;
+	});
+	
+	//drawCells();
+}
+
+
+function leftClicked() {
+
+	if (canRestart) {
+	
+		//startGame();
+	
+	} else if (!gameEnd) {
+
+		var clickedCell = null;
+
+		cells.forEach(function(cell) {
+
+			if (mouseX > cell.x && mouseX < cell.x+cellSize && mouseY >= cell.y && mouseY < cell.y+cellSize) {
+			
+				clickedCell = cell;
+
+			}
+		});
+
+
+		if (!gameStart && clickedCell != null) {
+		
+			gameStart = true;
+			displayText.innerHTML = "";
+			timerInterval = setInterval(gameTimer,10);
+		
+		
+			var count = numMines;
+			var inc = 0;
+
+			while(count > 0) {
+				inc ++
+				var num = Math.floor(Math.random()*cells.length);
+				var cell = cells[num];
+
+				if (!cell.mine && cell != clickedCell && !clickedCell.neighborCells.includes(cell)) {
+				
+					cell.mine = true;
+					count--;
+				}
+				
+				if (inc >= 1000) {
+					alert("Too many mines")
+					startGame();
+					break;
+				}
+			}
+
+			cells.forEach(function(cell) {
+
+				cell.neighborCells.forEach(function(other) {
+					if (other.mine) cell.count++;
+				});
+				
+			});
+		}
+		
+		if (clickedCell.revealed) {
+			if (mouseClicked) bothClicked();
+
+			mouseClicked = true;
+			clearTimeout(mouseClickTimeout);
+			mouseClickTimeout = setTimeout(function(){mouseClicked = false}, 500);
+		
+		}
+		
+		if (!clickedCell.revealed && clickedCell.mark == 0) revealCell(clickedCell);
+		
+		
+	}
+	
+	checkWin();
+	
+	//drawCells();	
+}
+
+
+
+function rightClicked() {
+
+	if (gameStart && !gameEnd) {
+	
+		cells.forEach(function(cell) {
+		
+			if (mouseX > cell.x && mouseX < cell.x+cellSize && mouseY >= cell.y && mouseY < cell.y+cellSize) {
+			
+				if (!cell.revealed) {
+			
+					cell.mark++;
+					flagAudio.stop();
+					flagAudio.play();
+					
+					if (cell.mark > 2) cell.mark = 0;
+					
+					if (flagsRemaining == 0 && cell.mark == 1) cell.mark++;;
+		
+					var numFlags = 0;
+					
+					cells.forEach(function(cell) {
+						if (cell.mark==1) numFlags++;
+					});
+					
+					flagsRemaining = numMines - numFlags;
+					flagsText.innerHTML = "Mines: " + flagsRemaining;
+		
+					
+				} else {
+				
+					if (mouseClicked) bothClicked();
+
+					mouseClicked = true;
+					clearTimeout(mouseClickTimeout);
+					mouseClickTimeout = setTimeout(function(){mouseClicked = false;}, 500);
+				}
+
+			}
+		});
+	}
+	
+	//drawCells();
+
+}
+
+function bothClicked() {
+	
+	if (gameStart && !gameEnd) {
+	
+		cells.forEach(function(cell) {
+		
+			if (mouseX > cell.x && mouseX < cell.x+cellSize && mouseY >= cell.y && mouseY < cell.y+cellSize) {
+			
+				if (cell.revealed)  {
+					
+					var num = 0;
+					var reveal = true;
+					
+					cell.neighborCells.forEach(function(other) {
+						if (other.mark == 1) num++;
+						if (other.mark == 2) reveal = false;
+					});
+					
+					if (cell.count == num && reveal) {
+						
+						cell.neighborCells.forEach(function(other) {
+							if (!other.revealed && other.mark == 0) {
+								revealCell(other);
+							}
+						});
+						
+						checkWin();
+					} else {
+						
+						cell.neighborCells.forEach(function(other) {
+							if (!other.revealed && other.mark != 1) {
+								other.flash = true;
+								flashTimeout = setTimeout(flashCellsEnd,100)
+								errorAudio.stop();
+								errorAudio.play();
+							}
+						});
+					
+					}
+				}
+			}
+		});
+
+	
+	}
+	
+	//drawCells();
+}
+
+function modeChange() {
+	
+	var items = document.getElementById("modeSelect");
+
+
+	for (var i=0; i<items.length; i++) {
+
+		if (items[i].selected) {
+
+			setMode(i);
+			
+
+			
+			clearInterval(timerInterval);
+			startGame();
+
+		}
+		
+	}
+	
+}
+
+function setMode(mode) {
+
+	if (mode == 0) {
+		boardWidth = 10;
+		boardHeight = 10;
+		numMines = 10;
+		difficulty = 0;
+		setBestTimeText(bestTime1);
+				
+	}
+			
+	if (mode == 1) {
+		boardWidth = 20;
+		boardHeight = 15;
+		numMines = 20;
+		difficulty = 1;	
+		setBestTimeText(bestTime2);		
+	}
+			
+	if (mode == 2) {
+		boardWidth = 30;
+		boardHeight = 20;
+		numMines = 40;
+		difficulty = 2;	
+		setBestTimeText(bestTime3);
+	}
+
+}
+
+function explodeMines() {
+
+	explodeRadius+=3;
+	if (!gameEnd) alert(explodeMinesInterval);
+
+	cells.forEach(function(other) {
+		if (other.mine && !other.revealed) 
+			
+			var dist = Math.sqrt(Math.pow(Math.abs((other.x+cellSize/2)-explodeX),2) + Math.pow(Math.abs((other.y+cellSize/2)-explodeY),2))
+			if (dist < explodeRadius+cellSize/2) {
+				other.revealed = true;
+				new explosion(other.x+cellSize/2,other.y+cellSize/2)
+
+				mineAudio.stop();
+				mineAudio.play();
+			}
+	});
+
+	
+	if (explodeRadius > canvas.width*2 && explodeRadius > canvas.height*2) clearInterval(explodeMinesInterval);
+	
+}
+
+function muteAudio() {
+	
+	globalVolume = !globalVolume;
+	setCookie('volume',globalVolume);
+	
+	audioList.forEach(function(audio) {
+		
+		audio.setVolume();
+	});
+	
+	if (globalVolume) muteButton.innerHTML = "\u{1F50A}";
+	else muteButton.innerHTML = "\u{1F507}";
+	
+}
+
+function setBestTimeText(val) {
+	var txt;
+	
+	if (val == -1) {
+	
+		txt = "N/A";
+		
+	} else {
+	
+		var minsText;
+		var secsText;
+
+		var mins = Math.floor(val/60000);
+
+		if (mins < 10) minsText = "0"+mins;
+		else minsText = mins;
+
+		var secs = Math.floor((val - mins*60000)/1000);
+
+		if (secs < 10) secsText = "0"+secs;
+		else secsText = secs;
+
+		var millis = (val-(mins*60000)-(secs*1000))/10
+		
+		txt = minsText + ":" + secsText + "." + millis;
+	}
+
+	bestTimeText.innerHTML = "Best Time: " + txt;
+
+}
+
+function resetBestTimes() {
+
+	setCookie("bestTime1",-1);
+	setCookie("bestTime2",-1);
+	setCookie("bestTime3",-1);
+	startGame();
+
+}
+
+
+
+document.onmousemove = function(e) {
+
+	var rect = canvas.getBoundingClientRect();
+	
+	mouseX = e.x - rect.left;
+	mouseY = e.y - rect.top;
+}
+
+document.addEventListener('contextmenu', event => {
+    event.preventDefault();
+});
+
+
+
+</script>
+
+<body onload="checkCookie('theme'); load(); checkCookie('volume'); checkCookie('bestTime1'); checkCookie('bestTime2'); checkCookie('bestTime3'); menuResize();" onclick="pageClicked()"  onresize="menuResize()" >
+
+<div id="topBar">
+	<script> loadMenuBar()</script>
+</div>
+
+<div id="mainWrapper">
+<div id="minesweeperInner">
+
+<div class="pageHeader">Minesweeper</div>
+<div class="intro">This is the classic Minesweeper game. Try to find all the mines!</div>
+
+
+<div id="minesweeperMain">	
+
+
+	<div id="canvasDiv">
+	
+	
+	<canvas id="canvas" onclick="leftClicked()" oncontextmenu="rightClicked()"></canvas>
+
+	</div>
+	
+	<div id="hud">
+	
+		<div id="menu">
+			
+			
+			<div><button id="newGameButton" onclick="startGame()">New Game</button></div>
+			
+			<div >
+			  <select id="modeSelect" onchange="modeChange()">
+				<option value="0">Easy: 10x10</option>
+				<option value="1">Medium: 20x15</option>
+				<option value="2">Hard: 30x20</option>
+			  </select>
+			</div>
+			
+			<div id="timerText"></div>
+			
+			<div id="bestTimeText"></div>
+		
+			<div id="flagsText"></div>
+			
+			<div id="displayText"></div>
+			
+			<button id="muteButton" onclick="muteAudio()"></button>
+	
+		</div>
+	</div>
+	
+
+	<img id="flag" src="images/flag.png" style="display:none"/>
+	<img id="mine" src="images/mine.png" style="display:none"/>
+	
+</div>
+</div>
+</div>
+
+
+
+</body>
+<html>

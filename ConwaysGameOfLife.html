@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<title>Inkerdink.com - Conway's Game of Life</title>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+<link rel="stylesheet" href="style.css">
+<script src="myscripts.js"></script>
+<script src="golScripts.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+
+</head>
+
+
+
+
+<body onload=" checkCookie('theme'), loadGOL(); menuResize(); windowResize() " onresize="menuResize(); windowResize()" onclick="pageClicked()" >
+
+<div id="topBar">
+	<script> loadMenuBar()</script>
+</div>
+
+<div id="mainWrapper">
+	<div id="mainInnerGOL">
+	
+		<div class="pageHeader"> Conway's Game of Life </div>
+	
+		<div class="intro" id="golIntro"> Devised by John Conway in 1970, this is simulation where the cells live or die based off of how many neighbors they have.  </div>
+		
+		<div id="golBox"> 
+		
+			<div id = "golMenuWrapper">
+				<div id="golMenu">
+					<button class="golButton" onclick="newButtonPressed()"> NEW </button>
+					<button class="golButton" onclick="advanceFrame()"> ADVANCE </button>
+					<button class="golButton" id="runButton" onclick="runButtonPressed()"> RUN </button>
+					
+					<div class="golLabel">Run Speed</div>
+					<div >
+					  <select id="fpsSelect" onchange="fpsChange()">
+						<option value="0">60</option>
+						<option value="1">30</option>
+						<option value="2">15</option>
+						<option value="3">8</option>
+						<option value="4" selected>4</option>
+						<option value="5">2</option>
+						<option value="6">1</option>
+		
+					  </select>
+					</div>
+		
+			
+				</div>
+			</div>
+			
+			<canvas id="golCanvas" onclick="canvasClicked()"></canvas>
+		</div>
+	</div>
+</div>
+
+
+</body>
+</html>

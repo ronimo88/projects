@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<title>Inkerdink.com - Passer Rating Calculator</title>
+
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+	<link rel="stylesheet" href="style.css">
+	<script src="myscripts.js"></script>
+	<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+	
+</head>
+
+<body onload=" checkCookie('theme'), menuResize()" onresize="menuResize()" onclick="pageClicked()" >
+
+<div id="topBar">
+	<script>loadMenuBar();</script>
+</div>
+
+
+<div id="mainWrapper">
+
+	<div id="mainInner">
+
+		<div class="pageHeader"> Passer Rating Calculator </div>
+		
+		<div class="intro" id="passerRatingIntro"> This is an application that calculates the NFL passer rating for the inputted values.&nbsp;<a href="https://en.wikipedia.org/wiki/Passer_rating" target="_blank">Click for more info.</a></div>
+
+		<div id="form">
+		
+			<table id="passerRatingTable">
+				<tr>
+				  <td>
+					<div>Attempts</div>
+				  </td>
+
+				  <td>
+					<form>
+					  <input id="attempts" type="number" min=1 onchange="checkInput(this, min)"></input>
+					</form>
+				  </td>
+				</tr>
+
+				<tr>
+				  <td>
+					<div>Completions</div>
+				  </td>
+
+				  <td>
+					<form>
+					  <input id="completions" type="number" min=0 onchange="checkInput(this, min)"></input>
+					</form>
+				  </td>
+				</tr>
+
+				<tr>
+				  <td>
+					<div>Yards</div>
+				  </td>
+
+				  <td>
+					<form>
+					  <input id="yards" type="number" min=0 onchange="checkInput(this, min)"></input>
+					</form>
+				  </td>
+				</tr>
+
+				<tr>
+				  <td>
+					<div>Touchdowns </div>
+				  </td>
+
+				  <td>
+					<form>
+					  <input id="touchdowns" type="number" min=0 onchange="checkInput(this, min)"></input>
+					</form>
+				  </td>
+				</tr>
+
+				<tr>
+				  <td>
+					<div>Interceptions</div>
+				  </td>
+
+				  <td>
+					<form>
+					  <input id="interceptions" type="number" min=0 onchange="checkInput(this, 0)"></input>
+					</form>
+				  </td>
+				</tr>
+
+
+
+				<tr>
+				  <td>
+					<button id="submitButton" onClick="submitForm()">Submit</button>
+				  </td>
+				<tr>
+
+			</table>
+
+			<div id="output"></div>
+			
+		</div>
+	</div>
+
+</div>
+
+
+
+</body>
+</html>
