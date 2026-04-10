@@ -1,0 +1,70 @@
+<html>
+
+<head>
+    <title>Columns</title>
+    <script src="scripts.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <div id="menu_div">
+
+        <div style="height: 400px">
+            <div id="header">COLUMNS</div>
+
+
+            <div id="start_text">Click to Start</div>
+
+            <div id="menu_wrapper">
+                <div>
+                    <span>Difficulty</span>
+                    <select id="difficulty_select">
+                        <option>Easy</option>
+                        <option>Normal</option>
+                        <option>Hard</option>
+                    </select>
+                </div>
+
+                <div>
+                    <span>Starting Level</span>
+                    <select id="level_select">
+                        <option>1</option>
+                        <option>10</option>
+                        <option>20</option>
+                        <option>30</option>
+                    </select>
+                </div>
+
+                <div>
+                    <button onclick="window.menu.startGame()">Start Game</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="game_div">
+        <div id="game_wrapper">
+
+            <div class="game_menu" id="left_menu">
+                <div><button id="quit_button" onclick="window.menu.quitGame()">Quit (Esc)</button></div>
+                <div><button id="new_game_button" onclick="window.menu.startGame()">Restart (R)</button></div>
+            </div>
+
+            <canvas id="canvas"></canvas>
+
+            <div class="game_menu">
+                <canvas id="preview"></canvas>
+                <div id="score"></div>
+                <div id="level"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mute_button" onclick="window.menu.mute()">&#128266;</div>
+
+</body>
+
+
+</html>

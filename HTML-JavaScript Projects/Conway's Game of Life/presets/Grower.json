@@ -1,0 +1,129 @@
+{
+  "presetName": "Grower",
+  "cellSize": 10,
+  "cellColor": "#ffff00",
+  "backgroundColor": "#808080",
+  "scrollOffset": {
+    "x": 0,
+    "y": 0
+  },
+  "cells": [
+    {
+      "x": 22,
+      "y": 41,
+      "alive": true,
+      "delete": false,
+      "changeState": false,
+      "color": "#ffff00",
+      "text": 1
+    },
+    {
+      "x": 23,
+      "y": 40,
+      "alive": true,
+      "delete": false,
+      "changeState": false,
+      "color": "#ffff00",
+      "text": 1
+    },
+    {
+      "x": 24,
+      "y": 40,
+      "alive": true,
+      "delete": false,
+      "changeState": false,
+      "color": "#ffff00",
+      "text": 1
+    },
+    {
+      "x": 24,
+      "y": 41,
+      "alive": true,
+      "delete": false,
+      "changeState": false,
+      "color": "#ffff00",
+      "text": 1
+    },
+    {
+      "x": 25,
+      "y": 39,
+      "alive": true,
+      "delete": false,
+      "changeState": false,
+      "color": "#ffff00",
+      "text": 1
+    },
+    {
+      "x": 26,
+      "y": 39,
+      "alive": true,
+      "delete": false,
+      "changeState": false,
+      "color": "#ffff00",
+      "text": 1
+    },
+    {
+      "x": 26,
+      "y": 40,
+      "alive": true,
+      "delete": false,
+      "changeState": false,
+      "color": "#ffff00",
+      "text": 1
+    },
+    {
+      "x": 26,
+      "y": 41,
+      "alive": true,
+      "delete": false,
+      "changeState": false,
+      "color": "#ffff00",
+      "text": 1
+    },
+    {
+      "x": 26,
+      "y": 37,
+      "alive": true,
+      "delete": false,
+      "changeState": false,
+      "color": "#ffff00",
+      "text": 1
+    },
+    {
+      "x": 24,
+      "y": 37,
+      "alive": true,
+      "delete": false,
+      "changeState": false,
+      "color": "#ffff00",
+      "text": 1
+    },
+    {
+      "x": 23,
+      "y": 37,
+      "alive": true,
+      "delete": false,
+      "changeState": false,
+      "color": "#ffff00",
+      "text": 1
+    },
+    {
+      "x": 22,
+      "y": 38,
+      "alive": true,
+      "delete": false,
+      "changeState": false,
+      "color": "#ffff00",
+      "text": 1
+    },
+    {
+      "x": 22,
+      "y": 37,
+      "alive": true,
+      "delete": false,
+      "changeState": false,
+      "color": "#ffff00",
+      "text": 1
+    }
+  ]
+}

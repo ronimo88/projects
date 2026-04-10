@@ -1,0 +1,47 @@
+{
+  "presetName": "Glider",
+  "cellSize": 20,
+  "cellColor": "#00ffff",
+  "backgroundColor": "#808080",
+  "scrollOffset": {
+    "x": 0,
+    "y": 0
+  },
+  "cells": [
+    {
+      "x": 11,
+      "y": 13,
+      "alive": true,
+      "delete": false,
+      "changeState": false
+    },
+    {
+      "x": 12,
+      "y": 13,
+      "alive": true,
+      "delete": false,
+      "changeState": false
+    },
+    {
+      "x": 13,
+      "y": 13,
+      "alive": true,
+      "delete": false,
+      "changeState": false
+    },
+    {
+      "x": 13,
+      "y": 12,
+      "alive": true,
+      "delete": false,
+      "changeState": false
+    },
+    {
+      "x": 12,
+      "y": 11,
+      "alive": true,
+      "delete": false,
+      "changeState": false
+    }
+  ]
+}

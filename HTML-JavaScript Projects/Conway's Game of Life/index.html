@@ -1,0 +1,211 @@
+<html>
+
+<head>
+    <title>Conway's Game of Life</title>
+    <script src="scripts.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body onload="load()">
+
+    <div id="main">
+
+        <div id="inner">
+
+            <div id="header">
+                <span id="header_text">Conway's Game of Life</span>
+                <div id="created_text">Created by Ron Morrison Jr.</div>
+            </div>
+
+            <div id="wrapper">
+
+                <div id="menu_wrapper">
+
+                    <div id="menu">
+
+                        <div class="menu_div">
+                            <button id="explanation_button" onclick="helpClicked()">Explanation ?</button>
+                        </div>
+
+                        <div class="line"></div>
+
+                        <div class="menu_div">
+                            <button id="next_button" onclick="next()">
+                                <span id="next_button_text">Next </span>
+                                <span id="next_button_icon">&#8631;</span>
+                            </button>
+                            <span id="generation"></span>
+                        </div>
+
+                        <div class="menu_div">
+                            <button id="play_button" onclick="togglePlay()">
+                                <span id="play_button_text">Play</span>
+                                <span id="play_button_icon">&#9658;</span>
+                            </button>
+
+                            <span>Speed</span>
+                            <input id="speed" type="number" min=1 max=60 onchange="changeInput(this)">
+                            <span>FPS</span>
+                        </div>
+
+                        <div class="menu_div">
+                            <button id="reset_button" onclick="reset()">Clear</button>
+                        </div>
+
+                        <div class="line"></div>
+
+                        <div class="menu_div">
+                            <span>Zoom </span>
+                            <input id="zoom" type="number" min=5 max=300 step=5 onchange="changeInput(this)">
+                            <span>%</span>
+                        </div>
+
+                        <div class="menu_div">
+                            <span>Position: </span>
+                            <span id="view_pos"></span>
+                        </div>
+
+                        <div class="menu_div">
+                            <button id="reset_view" onclick="resetView()">Default View</button>
+
+                        </div>
+
+                        <div class="line"></div>
+
+                        <div class="menu_div">
+                            <span>Cell Color</span>
+                            <input id="cell_color" type="color" onchange="changeInput(this)">
+                        </div>
+
+                        <div class="menu_div">
+                            <span>Background Color</span>
+                            <input id="background_color" type="color" onchange="changeInput(this)">
+                        </div>
+
+                        <div class="menu_div">
+                            <span>Multi-color Mode</span>
+                            <input id="multi_color_mode" type="checkbox" onchange="changeInput(this)">
+                        </div>
+
+                        <div class="menu_div">
+                            <button onclick="defaultColors()">Default Colors</button>
+                        </div>
+
+                        <div class="line"></div>
+
+                        <div class="menu_div">
+                            <span>Preset</span>
+                            <select id="preset_select" onchange="changeInput(this)">
+                                <option value="none">None</option>
+                            </select>
+                        </div>
+
+                        <div class="menu_div">
+                            <span>Name</span>
+                            <input id="preset_name" type="text">
+                        </div>
+
+                        <div class="menu_div">
+                            <button id="download_button" onclick="download()">Download &#10515;</button>
+                        </div>
+
+                        <div class="menu_div">
+                            <button form="" onclick="fileUpload()">Upload &#10514;</button>
+                            <input type="file" id="file_upload" name="uploadedFiles" accept="application/json"
+                                style="display:none">
+                        </div>
+
+                        <div class="menu_div">
+                            <button id="random" onclick="createRandomCells()">Random Cells &#127922;</button>
+                        </div>
+
+                        <div id="fps"></div>
+
+                    </div>
+
+                </div>
+
+                <div id="canvas_wrapper">
+                    <canvas id="canvas"></canvas>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="overlay" onclick="closeHelp()"></div>
+
+    <div id="help_div">
+
+        <div id="help_header">
+            <div id="close_help_button" onclick=closeHelp()>&times;</div>
+        </div>
+
+        <div id="help_content">
+
+            <p>The Game of Life, also known as Conway's Game of Life or simply Life, is a cellular automaton devised by
+                the British mathematician John Horton Conway in 1970. It is a zero-player game, meaning that its
+                evolution is determined by its initial state, requiring no further input. One interacts with the Game of
+                Life by creating an initial configuration and observing how it evolves. It is Turing complete and can
+                simulate a universal constructor or any other Turing machine.</p>
+
+            <p>The universe of the Game of Life is an infinite, two-dimensional orthogonal grid of square cells, each of
+                which is in one of two possible states, live or dead (or populated and unpopulated, respectively). Every
+                cell interacts with its eight neighbours, which are the cells that are horizontally, vertically, or
+                diagonally adjacent. At each step in time, the following transitions occur: </p>
+
+            <p style="margin-left: 20px">(1) Any live cell with fewer than two live neighbours dies, as if by
+                underpopulation.</p>
+            <p style="margin-left: 20px">(2) Any live cell with two or three live neighbours lives on to the next
+                generation.</p>
+            <p style="margin-left: 20px">(3) Any live cell with more than three live neighbours dies, as if by
+                overpopulation.</p>
+            <p style="margin-left: 20px">(4) Any dead cell with exactly three live neighbours becomes a live cell, as if
+                by reproduction.</p>
+
+            <p>The initial pattern constitutes the seed of the system. The first generation is created by applying the
+                above rules simultaneously to every cell in the seed, live or dead; births and deaths occur
+                simultaneously, and the discrete moment at which this happens is sometimes called a tick. Each
+                generation is a pure function of the preceding one. The rules continue to be applied repeatedly to
+                create further generations.</p>
+
+            <p><a href='https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life' target='_blank'>Wikipedia - Conway's Game
+                    of Life</a></p>
+
+            <div class="line"></div>
+
+            <p style="text-decoration: underline; font-weight: bold;">How to Play</p>
+
+            <p>Click a cell to turn it on or off.</p>
+
+            <p>Zoom in and out by scrolling the mouse wheel. You can zoom in and out by chaning the zoom input on the
+                left menu</p>
+
+            <p>Move your position on the grid by clicking the dragging the mouse or using the arrow keys. You can also
+                hold shift and press the arrow keys to move all the cells by 1 tile.</p>
+
+            <p>You can change the cell color and background color in the left menu. Check multi-color mode to allow each
+                cell to have a unique color. New cells that are created will have the combined color of it's 3 neighbors
+                producing some interesting results. <strong>WARNING:</strong> Multi-color mode will run much slower with
+                many cells on the screen.</p>
+
+            <p>Click the 'Next' button from the left menu to progress to the next generation. Cells will live or die
+                using the rules stated above. Click 'Play' to continously progress through generations. Change the speed
+                to make the simulation run faster or slower. </p>
+
+            <p>You can download your own custom patterns by typing a name in the 'Name' field and clicking download.
+                Click 'Upload' to upload your patterns.</p>
+
+            <p>Have fun!</p>
+
+
+
+
+        </div>
+    </div>
+
+</body>
+
+</html>

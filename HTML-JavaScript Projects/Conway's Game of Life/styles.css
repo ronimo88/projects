@@ -1,0 +1,204 @@
+/* Global Typography */
+
+:root {
+    --default-font-size: 16px;
+    --default-button-color: #e0e0e0;
+}
+
+body,
+input,
+button,
+label,
+select {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: var(--default-font-size);
+    color: white;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #303030;
+}
+
+#main {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    height: 100vh;
+}
+
+#inner {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+#wrapper {
+    display: flex;
+    flex-grow: 1;
+    padding: 10px;
+}
+
+#canvas_wrapper {
+    flex-grow: 1;
+    background-color: gray;
+    border: 2px solid black;
+}
+
+#header {
+    background-color: #002030;
+    padding: 10px;
+    border-bottom: 1px solid black;
+    color: white;
+    position: relative;
+}
+
+#header_text {
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 20px;
+}
+
+#created_text {
+    padding: 2px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-weight: bold;
+    font-size: 16px;
+    color: white;
+}
+
+#menu_wrapper {
+    height: calc(100vh - 65px);
+    overflow-y: auto;
+}
+
+#menu {
+    padding-right: 10px;
+    min-width: 220px;
+    height: fit-content;
+}
+
+.menu_div {
+    margin-bottom: 15px;
+}
+
+.line {
+    border-bottom: 1px solid;
+    margin-bottom: 10px;
+}
+
+#multi_color_mode {
+    width: fit-content;
+}
+
+input {
+    width: 50px;
+    color: black;
+}
+
+select {
+    color: black;
+}
+
+input[type="checkbox"] {
+    transform: scale(1.25);
+    -ms-transform: scale(1.25);
+    -moz-transform: scale(1.25);
+    -webkit-transform: scale(1.25);
+    -o-transform: scale(1.25);
+}
+
+#preset_name {
+    width: 150px;
+}
+
+#fps {
+    position: absolute;
+    bottom: 10px;
+    font-size: 14px;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+#overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #000000cc;
+    z-index: 1;
+}
+
+#help_div {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 20px;
+    right: 20px;
+    background-color: #c0c0c0;
+    margin: 80px auto;
+    max-width: 1000px;
+    height: calc(100vh - 160px);
+    overflow-y: auto;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    z-index: 2;
+}
+
+#help_header {
+    position: sticky;
+    top: 0px;
+    background-color: #303030;
+    height: 24px;
+    border-bottom: solid;
+    border-width: 1px;
+    border-color: black;
+    line-height: 24px;
+}
+
+#close_help_button {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    top: 0px;
+    right: 0px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 32px;
+    padding: 0px;
+    vertical-align: middle;
+}
+
+#help_content {
+    margin: 20px;
+    margin-top: 0px;
+    font-size: 18px;
+    color:black;
+}
+
+button {
+    border-radius: 5px;
+    border-width: 1.5px;
+    background-color: var(--default-button-color);
+    color: black;
+    cursor: pointer;
+    padding: 3px 6px;
+}
+
+#play_button,
+#next_button {
+    width: 70px;
+    text-align: middle;
+    padding: 3px 6px;
+    line-height: 21px;
+}
+
+#next_button_icon {
+    font-weight: bold;
+}

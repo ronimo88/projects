@@ -1,0 +1,168 @@
+<html>
+
+<head>
+    <title>Color Picker</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="ntc.js"></script>
+    <script src="color.js"></script>
+    <script src="scripts.js"></script>
+
+
+</head>
+
+
+<body onload="load()">
+
+    <div id="main">
+
+        <div id="header">Color Picker</div>
+
+        <div style="display:flex; flex-wrap:wrap;">
+
+            <div style="display:block; margin:10px; width:360px">
+
+                <div style="display:flex; align-items: top;">
+
+                    <div id="color_display"></div>
+
+                    <div style="margin-left: 10px;">
+
+                        <input id="hex_input" type="text" onchange="hexChange()" oninput="checkHexInput()">
+                        <button onclick="copyHexCode()">Copy</button>
+                        <div id="rgb_display"></div>
+                        <select id="color_select" onchange="colorSelectChange()"></select>
+                        <div id="color_name"></div>
+
+                    </div>
+                </div>
+
+                <table id="color_inputs">
+
+                    <tr>
+                        <td style="display:block; width:80px">RGB Step</td>
+                        <td>
+                            <select class="color_input" id="step_input" name="step" value="1" onchange="stepChange()">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="4">4</option>
+                                <option value="8">8</option>
+                                <option value="16">16</option>
+                                <option value="32">32</option>
+                                <option value="64">64</option>
+                                <option value="128">128</option>
+                            </select>
+                        </td>
+                        <td></td>
+                        <td style="text-align: center; text-decoration: underline;">X</td>
+                        <td style="text-align: center; text-decoration: underline;">Y</td>
+                    </tr>
+
+
+
+                    <tr>
+                        <td>Red</td>
+
+                        <td><input type="number" class="color_input" id="red_input" name="red" min="0" max="256"
+                                onchange="colorInputRGBChange()"></td>
+
+                        <td><input type="range" class="color_range" id="red_range" name="red" min="0" max="256"
+                                value="0" oninput="colorRangeRGBChange()"></td>
+
+                        <td><input type="radio" name="x_color" id="red_x" onchange="canvasXSelect(this)" checked>
+                        </td>
+                        <td><input type="radio" name="y_color" id="red_y" onchange="canvasYSelect(this)"></td>
+
+                    </tr>
+
+                    <tr>
+                        <td>Green</td>
+
+                        <td><input type="number" class="color_input" id="green_input" name="green" min="0" max="256"
+                                onchange="colorInputRGBChange()"></td>
+
+                        <td><input type="range" class="color_range" id="green_range" name="green" min="0" max="256"
+                                value="0" oninput="colorRangeRGBChange()"></td>
+
+                        <td><input type="radio" name="x_color" id="green_x" onchange="canvasXSelect(this)"></td>
+                        <td><input type="radio" name="y_color" id="green_y" onchange="canvasYSelect(this)" checked>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+                        <td>Blue</td>
+
+                        <td><input type="number" class="color_input" id="blue_input" name="blue" min="0" max="256"
+                                onchange="colorInputRGBChange()"></td>
+
+                        <td><input type="range" class="color_range" id="blue_range" name="blue" min="0" max="256"
+                                value="0" oninput="colorRangeRGBChange()"></td>
+
+                        <td><input type="radio" name="x_color" id="blue_x" onchange="canvasXSelect(this)"></td>
+                        <td><input type="radio" name="y_color" id="blue_y" onchange="canvasYSelect(this)"></td>
+                    </tr>
+
+
+
+                    <tr>
+                        <td>Hue</td>
+
+                        <td><input type="number" class="color_input" id="hue_input" name="hue" min="0" max="359"
+                                step="1" onchange="colorInputHSLChange()"></td>
+
+                        <td><input type="range" class="color_range" id="hue_range" name="hue" min="0" max="359" step="1"
+                                value="0" oninput="colorRangeHSLChange()"></td>
+
+                        <td><input type="radio" name="x_color" id="hue_x" onchange="canvasXSelect(this)">
+                        </td>
+                        <td><input type="radio" name="y_color" id="hue_y" onchange="canvasYSelect(this)"></td>
+
+                    </tr>
+
+                    <tr>
+                        <td>Saturation</td>
+
+                        <td><input type="number" class="color_input" id="saturation_input" name="saturation" min="0"
+                                max="100" step="1" onchange="colorInputHSLChange()"></td>
+
+                        <td><input type="range" class="color_range" id="saturation_range" name="saturation" min="0"
+                                max="100" step="1" value=" 0" oninput="colorRangeHSLChange()"></td>
+
+                        <td><input type="radio" name="x_color" id="saturation_x" onchange="canvasXSelect(this)">
+                        </td>
+                        <td><input type="radio" name="y_color" id="saturation_y" onchange="canvasYSelect(this)">
+                        </td>
+
+                    </tr>
+
+                    <tr>
+                        <td>Lightness</td>
+
+                        <td><input type="number" class="color_input" id="lightness_input" name="lightness" min="0"
+                                max="100" step="1" onchange="colorInputHSLChange()"></td>
+
+                        <td><input type="range" class="color_range" id="lightness_range" name="lightness" min="0"
+                                max="100" step="1" value="0" oninput="colorRangeHSLChange()"></td>
+
+                        <td><input type="radio" name="x_color" id="lightness_x" onchange="canvasXSelect(this)">
+                        </td>
+                        <td><input type="radio" name="y_color" id="lightness_y" onchange="canvasYSelect(this)">
+                        </td>
+                    </tr>
+
+
+                </table>
+
+            </div>
+
+            <div style="display:block; margin:10px; width:fit-content">
+                <canvas id="canvas" tabindex="0" onclick="this.focus()"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

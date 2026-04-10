@@ -1,0 +1,93 @@
+body {
+    background-color: rgb(64, 64, 64);
+}
+
+body,
+input,
+select {
+    font-size: 14px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#wrapper {
+    width: fit-content;
+    padding: 10px;
+    margin: auto;
+}
+
+#main {
+    display: flex;
+    width: fit-content;
+}
+
+#title {
+    font-weight: bold;
+    font-size: 20px;
+    color: white;
+    padding: 5px;
+}
+
+#yt_link {
+    font-weight: bold;
+    float: right;
+    text-decoration: underline;
+    color: white;
+    padding: 5px;
+}
+
+#menu {
+    border-style: solid;
+    border-right: none;
+    border-width: 2px;
+    padding: 10px;
+    width: fit-content;
+    background-color: rgb(192, 192, 192);
+}
+
+#canvas_wrapper {
+    resize: both;
+    overflow: auto;
+    min-height: 450px;
+    min-width: 450px;
+}
+
+canvas {
+    border-style: solid;
+    border-width: 2px;
+    border-color: black;
+}
+
+input,
+select {
+    margin-bottom: 10px;
+}
+
+.label1 {
+    display: inline-block;
+    width: 120px;
+}
+
+.label2 {
+    display: inline-block;
+    width: 50px;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    width: 160px;
+}
+
+button {
+    margin-bottom: 10px;
+}
+
+.line {
+    border-bottom: solid;
+    border-width: 1px;
+    margin-bottom: 10px
+}
+
+#image_name {
+    width: 230px;
+}

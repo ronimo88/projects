@@ -1,0 +1,285 @@
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+        background-color: rgb(224, 224, 224);
+
+    }
+
+    #link_bar {
+        background-color: rgb(16, 48, 80);
+        padding: 5px 10px;
+    }
+
+    #link_bar a {
+        margin-right: 10px;
+        text-decoration: none;
+        color: white;
+        font-size: 18px;
+    }
+
+    .main {
+        margin: 0px auto;
+        max-width: 1200px;
+        padding: 20px;
+        height: 100%;
+    }
+
+    .inner {
+        margin-left: 20px;
+    }
+
+
+    label {
+        font-size: 16px;
+    }
+
+    td {
+        padding-bottom: 5px;
+    }
+
+    .header {
+        font-size: 20px;
+        border-width: 1px;
+        padding-bottom: 5px;
+        font-weight: bold;
+        border-bottom: solid;
+        margin-bottom: 10px;
+    }
+
+    .header2 {
+        font-size: 18px;
+        border-width: 1px;
+        padding-bottom: 5px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    #errors {
+        color: red;
+        padding: 5px;
+        width: fit-content;
+        border-color: black;
+        border-style: solid;
+        border-width: 1px;
+        margin-bottom: 20px;
+        background-color: rgb(248, 248, 248);
+    }
+
+    #messages {
+        color: green;
+        padding: 5px;
+        width: fit-content;
+        border-color: black;
+        border-style: solid;
+        border-width: 1px;
+        margin-bottom: 20px;
+        background-color: rgb(248, 248, 248);
+    }
+
+
+    #questions {
+        margin-left: 10px;
+    }
+
+    .results {
+        font-size: 20px;
+        margin-left: 10px;
+    }
+
+    .mark {
+        font-weight: bold;
+    }
+
+    input,
+    button,
+    td {
+        font-size: 16px;
+    }
+
+    button {
+        background-color: rgb(16, 48, 80);
+        color: white;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    .file_div {
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 5px;
+        padding: 5px;
+        background-color: rgb(224, 224, 224);
+        height: fit-content;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+
+    }
+
+    form {
+        margin: 0;
+    }
+
+    .left_section {
+        width: 100%;
+        height: fit-content;
+        display: block;
+        margin-right: 10px;
+    }
+
+    .right_section {
+        width: 100%;
+        height: fit-content;
+        display: block;
+        margin-left: 10px;
+
+    }
+
+    .block {
+        border-style: solid;
+        border-width: 1px;
+        background-color: rgb(240, 240, 240);
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+    }
+
+    #request_table {
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    #request_table td {
+        padding: 5px;
+        font-weight: bold;
+        border-style: solid;
+        border-width: 1px;
+        background-color: rgb(240, 240, 240);
+        cursor: pointer;
+    }
+
+    #request_table a {
+        text-decoration: underline;
+        color: blue;
+    }
+
+    #request_table tr:hover td{
+        background-color: rgb(128, 248, 248);
+    }
+
+
+
+    select {
+        font-size: 16px;
+        padding: 2px;
+    }
+
+    .divider {
+        border-bottom: solid;
+        border-width: 1px;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    textarea {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        width: 100%;
+        height: 200px;
+        resize: none;
+    }
+
+    .note_div {
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 5px;
+        padding: 5px;
+        background-color: rgb(224, 224, 224);
+        height: fit-content;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+    }
+
+    .overlay {
+        z-index: 10;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, .75);
+        display: none;
+    }
+
+    #new_note,
+    #new_request,
+    #edit_request,
+    #assign_request,
+    #approve_request,
+    #filter {
+        border-style: solid;
+        border-radius: 10px;
+        border-width: 1px;
+        margin: 50px auto;
+        width: fit-content;
+        height: fit-content;
+        background-color: rgb(240, 240, 240);
+        padding: 10px;
+    }
+
+    .tooltip {
+        position: relative;
+        display: inline-block;
+        color: white;
+        background-color: blue;
+        font-weight: bold;
+        border-radius: 20px;
+        cursor: pointer;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+
+    }
+
+    .tooltiptext {
+        visibility: hidden;
+        width: 375px;
+        background-color: black;
+        color: #fff;
+        text-align: left;
+        border-radius: 6px;
+        padding: 5px 0;
+        position: absolute;
+        z-index: 1;
+        padding: 5px;
+        left: 30px;
+        top: -10px;
+    }
+
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+    }
+
+    .tab {
+        background-color: gray;
+        border-color: black;
+        border-top-style: solid;
+        border-left-style: solid;
+        border-right-style: solid;
+        border-bottom-style: none;
+        border-width: 1px;
+        color: white;
+        padding: 5px;
+        display: inline-block;
+        cursor: pointer;
+        margin: 0px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .tabs {
+        border-bottom-style: solid;
+        border-width: 1px;
+    }

@@ -1,0 +1,81 @@
+<html>
+
+<head>
+    <title>Dragon Curve</title>
+    <script src="scripts.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body onload="load()"></body>
+
+<div id="main">
+
+    <div id="menu">
+
+        <div>
+            <label>Preset</label>
+            <select id="preset" onchange="inputChange(this)">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Repeat</label>
+            <input id="repeat" type="number" min=1 max=20 onchange="inputChange(this)">
+        </div>
+
+        <div>
+            <label>Line Length</label>
+            <input id="lineLength" type="number" step=0.25 min=1 max=100 onchange="inputChange(this)">
+        </div>
+
+        <div>
+            <label>Line Width</label>
+            <input id="lineWidth" type="number" step=1 min=1 max=20 onchange="inputChange(this)">
+        </div>
+
+        <div>
+            <label>Rotation</label>
+            <select id="rotation" onchange="inputChange(this)">
+                <option value=0>0&deg;</option>
+                <option value=45>45&deg;</option>
+                <option value=90>90&deg;</option>
+                <option value=135>135&deg;</option>
+                <option value=180>180&deg;</option>
+                <option value=225>225&deg;</option>
+                <option value=270>270&deg;</option>
+                <option value=315>335&deg;</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Line Color</label>
+            <input id="lineColor" type="color" onchange="inputChange(this)">
+        </div>
+
+        <div>
+            <label>Background Color</label>
+            <input id="backgroundColor" type="color" onchange="inputChange(this)">
+        </div>
+
+        <div>
+            <button onclick="downloadImage()">Download Image</button>
+        </div>
+
+    </div>
+
+
+    <div id="canvas_box">
+        <div id="canvas_wrapper">
+            <canvas id="canvas"></canvas>
+        </div>
+    </div>
+
+
+
+</div>
+
+</html>
