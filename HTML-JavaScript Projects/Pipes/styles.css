@@ -1,0 +1,119 @@
+ :root {
+        --bg-color: #f0f0f0;
+        --panel-color: #ffffff;
+        --accent-color: #4a90e2;
+        --danger-color: #e74c3c;
+        --text-color: #333;
+    }
+
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+
+    #header h2 {
+        font-size: 36px;
+        margin: 0 0 20px 0;
+        letter-spacing: 4px;
+        color: var(--accent-color);
+    }
+
+    #wrapper {
+        background-color: var(--panel-color);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        /* Consistent spacing between all sections */
+        width: fit-content;
+    }
+
+    /* Common style for the rows above/below the canvas */
+    .controls-group,
+    .meta-group,
+    .actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+    }
+
+    /* Input Styling */
+    select,
+    input,
+    button {
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 14px;
+        outline: none;
+    }
+
+    select {
+        width: 50px;
+        margin-right: 10px;
+    }
+
+    #seed_input {
+        width: 100px;
+    }
+
+    #seed_display {
+        margin-right: 15px;
+    }
+
+    label {
+        font-size: 14px;
+    }
+
+    button {
+        cursor: pointer;
+        background-color: #eee;
+        transition: all 0.2s;
+    }
+
+    button:hover {
+        background-color: #ddd;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        color: white;
+        border: none;
+    }
+
+    .btn-danger {
+        background-color: var(--danger-color);
+        color: white;
+        border: none;
+    }
+
+    /* Info Display */
+    .game-info {
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: bold;
+        background: #e8f4ff;
+        padding: 10px;
+        border-radius: 8px;
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    .canvas-container {
+        margin: auto;
+    }
+
+    #canvas {
+        background-color: #222;
+        border-radius: 8px;
+        display: block;
+        /* Removes weird bottom spacing */
+    }
